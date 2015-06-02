@@ -1,0 +1,48 @@
+############################
+# npm
+############################
+node_modules
+npm-debug.log
+
+
+############################
+# tmp, editor & OS files
+############################
+.tmp
+*.swo
+*.swp
+*.swn
+*.swm
+.DS_STORE
+*#
+*~
+.idea
+nbproject
+
+
+############################
+# Tests
+############################
+testApp
+coverage
+
+
+############################
+# Dev exclusions
+############################
+config.cson*
+config.workshop.cson*
+*.bak
+*.csv
+data
+drivers
+liquibase
+scriptella
+workshop
+_workshop
+fogbugz.conf.json
+
+############################
+# Other
+############################
+.node_history
