@@ -124,7 +124,7 @@ subcommand.get.action ()->
 
 # Liquibase-Specific Commands
 
-subcommand.validate = program.command 'validate'
+subcommand.validate = program.command 'validate-model'
 subcommand.validate.unknownOption = noOp
 subcommand.validate.description 'Create a new thing'
 subcommand.validate.option "-d, --database", "database name"

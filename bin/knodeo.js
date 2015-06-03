@@ -125,7 +125,7 @@ subcommand.get.action(function() {
   }
 });
 
-subcommand.validate = program.command('validate');
+subcommand.validate = program.command('validate-model');
 
 subcommand.validate.unknownOption = noOp;
 
