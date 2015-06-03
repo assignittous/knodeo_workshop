@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var config, init, liquibase, noOp, pkg, program, result, scriptella, services, subcommand;
+var config, help, init, liquibase, noOp, pkg, program, result, scriptella, services, subcommand;
 
 require('sugar');
 
@@ -29,6 +29,14 @@ config.description('Create a new thing');
 
 config.action(function() {
   return console.log("This command dumps the configuration");
+});
+
+help = program.command('help');
+
+help.description('Create a new thing');
+
+help.action(function() {
+  return require('../lib/about');
 });
 
 subcommand.init = program.command('init');
