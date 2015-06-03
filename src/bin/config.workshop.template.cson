@@ -1,9 +1,7 @@
-version: "0.1.1"
+version: "0.1.7"
 liquibase:
-  description: "This is the working directory used for liquibase."
   working_directory: ""
 scriptella:
-  description: "This is the working directory used for scriptella."
   working_directory: ""
   etl_properties:
     environments:
@@ -16,67 +14,49 @@ scriptella:
 cloud:
   asana:
     key: ""
-    data_path: "data"
-    outfile_prefix: ""
   basecamp:
     email: ""
     password: ""
-    data_path: "data"
-    outfile_prefix: ""
   open_exchange_rates:
-    app_id: ''
+    app_id: '='
     data_path: "data"
-    outfile_prefix: ""
     currencies: []
   mailchimp:
     token: ""
     data_path: "data"
-    outfile_prefix: ""
   fogbugz:
-    host: ""
+    host: "{{subdomain}}.fogbugz.com"
     username: ""
     password: ""
     filter: "etl"
-    data_path: "data"
-    outfile_prefix: ""
   freshbooks:
-    api_url: "https://{subdomain}.freshbooks.com/api/2.1/xml-in"
+    api_url: "https://{{subdomain}}.freshbooks.com/api/2.1/xml-in"
     api_token: ""
-    data_path: "data"
-    outfile_prefix: ""    
   github:
     token: ""
     data_path: "data"
-    outfile_prefix: ""  
   google_analytics:
     user: ""
     password: ''
-    profile: 'ga:########'
-    data_path: "data"
-    outfile_prefix: ""  
+    profile: ''
   harvest:
     subdomain: ""
     email: ""
     password: ""
-    data_path: "data"
-    outfile_prefix: ""  
   highrise:
     username: ''
     token: ''
-    data_path: "data"
-    outfile_prefix: ""  
   trello:
     key: ""
     token: ""
     data_path: "data"
-    outfile_prefix: ""  
 databases:
   drivers:
     postgresql:
       class: "org.postgresql.Driver"
-      classPath: "{{cwd}}/drivers/postgresql-9.3-1103.jdbc4.jar"
+      classPath: "{{cwd}}/_workshop/drivers/postgresql-9.3-1103.jdbc4.jar"
       baseUrl: "jdbc:postgresql://"
-  mydb:
+  knodeo:
     development:
       driver: "postgresql"        
       host: "localhost"
