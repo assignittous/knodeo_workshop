@@ -14,6 +14,18 @@ console.log """
 
     knodeo <command> <parameters>
 
+  General Commands
+  ----------------
+
+  See this help:
+
+  knodeo help
+
+  Create the base working folder tree in the current directory:
+
+  knodeo init
+
+
   Database Schema Commands
   ------------------------
 
