@@ -148,7 +148,10 @@ subcommand.reverseEngineer.option("-d, --database", "database name");
 subcommand.reverseEngineer.option("-e, --environment [environment]", "environment");
 
 subcommand.reverseEngineer.action(function() {
-  return liquibase.database.reverseEngineer(subcommand.reverseEngineer.database, subcommand.reverseEngineer.environment);
+  console.log("====");
+  console.log(subcommand.reverseEngineer.database || null);
+  console.log("====");
+  return liquibase.database.reverseEngineer(subcommand.reverseEngineer.database || null, subcommand.reverseEngineer.environment || null);
 });
 
 subcommand.documentDatabase = "";

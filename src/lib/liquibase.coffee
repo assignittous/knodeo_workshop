@@ -27,8 +27,9 @@ exports.Liquibase = {
       #if !test?
     cmdoutput = shell.exec(@command.join(' '), {encoding: "utf8", silent: false, async: async || false})
 
-    cmdoutput.stdout.on 'data', (data)->
-      console.log data
+    if cmdoutput.stdout?
+      cmdoutput.stdout.on 'data', (data)->
+        console.log data
     #catch e
     #  logger.error "An error occurred, check the command"
     #  console.log e
@@ -54,6 +55,8 @@ exports.Liquibase = {
 
 
     conn = configuration.databases[database]
+    console.log conn
+
     db_driver = configuration.databases[database][environment].driver
     driver = configuration.databases.drivers[db_driver]
 
@@ -64,7 +67,7 @@ exports.Liquibase = {
     @command.push "--url=#{driver.baseUrl}#{conn[environment].host}:#{conn[environment].port}/#{conn[environment].database}"
     @command.push "--username=#{conn[environment].user}"
     @command.push "--password=#{conn[environment].password}"
-    @command.push "--changeLogFile=liquibase/#{changelog}.xml"
+    @command.push "--changeLogFile=_workshop/liquibase/#{changelog}.xml"
 
 
 
@@ -142,10 +145,14 @@ exports.Liquibase = {
       logger.info "Mark all migrations as excuted in the database named #{name}"
 
     reverseEngineer: (name, environment)->
+      if !name?
+        configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+        name = configuration.defaults.database
+
       logger.info "Reverse engineer the database named: #{name}"
       @that.setOptions(name, environment, "#{name}_reverse_engineer")
       @that.command.push "generateChangeLog"      
-      @that.execute()
+      @that.execute(true)
       # todo - follow up tasks - convert xml file to jade
 
 

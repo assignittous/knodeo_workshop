@@ -39,7 +39,7 @@ exports.Init =
       "./_workshop/recipes"
       "./_workshop/src/data"
       "./_workshop/src/database_models"
-      "./_workshop/src/scripts"      
+      "./_workshop/src/elt_scripts"      
     ]
     # Check for ./_site folder
     fs.readdir basepath, (err, paths) ->
