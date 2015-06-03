@@ -63,7 +63,7 @@ exports.Liquibase = {
     cwd = process.env.PWD || process.cwd()
 
     @command.push "--driver=#{driver.class}"
-    @command.push "--classpath=#{driver.classPath.replace(/{{cwd}}/g,cwd)}"
+    @command.push "--classpath=\"#{driver.classPath.replace(/{{cwd}}/g,cwd)}\""
     @command.push "--url=#{driver.baseUrl}#{conn[environment].host}:#{conn[environment].port}/#{conn[environment].database}"
     @command.push "--username=#{conn[environment].user}"
     @command.push "--password=#{conn[environment].password}"
