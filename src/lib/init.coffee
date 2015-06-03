@@ -15,7 +15,7 @@ exports.Init =
   setupConfigFile: ()->
     # copy the templates\
     mainModulePath = process.mainModule.filename
-    confTemplatePath = mainModulePath.replace('knodeo.js','config.template.cson')
+    confTemplatePath = mainModulePath.replace('knodeo.js','config.workshop.template.cson')
 
 
     source = confTemplatePath
