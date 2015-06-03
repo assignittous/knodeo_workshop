@@ -32,6 +32,14 @@ config.description 'Create a new thing'
 config.action ()->
   console.log "This command dumps the configuration"
 
+# ## `knodeo help`
+
+help = program.command 'help'
+help.description 'Create a new thing'
+help.action ()->
+  require('../lib/about')
+
+
 
 # # Parameterized Subcommands
 
