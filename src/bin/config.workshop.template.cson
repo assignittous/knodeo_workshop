@@ -97,5 +97,5 @@ databases:
       user: "user"
       password: "password"
 defaults:
-  connection: "mydb"
+  database: "mydb"
   environment: "development"
