@@ -74,7 +74,7 @@ databases:
       class: "org.postgresql.Driver"
       classPath: "{{cwd}}/_workshop/drivers/postgresql-9.3-1103.jdbc4.jar"
       baseUrl: "jdbc:postgresql://"
-  knodeo:
+  mydb:
     development:
       driver: "postgresql"        
       host: "localhost"
