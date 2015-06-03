@@ -140,19 +140,3 @@ currentRepo.listTags (err, tags)->
 #  console.log data
 
 
-###
-repo.show (err, repo)->
-  if err?
-    console.log "ERROR"
-    console.log err
-  else
-    console.log repo
-###
-#api.call  'campaigns', 'list', {start: 0, limit: 25}, (err, data)->
-#  if err?
-#    console.log "ERROR"
-#    console.log err
-#  else
-#    console.log "Mailchimp data"
-#    console.log data.length  
-
