@@ -118,7 +118,7 @@ exports.Liquibase = {
 
 
     rollback: (database)->
-      logger.info "Roll back migration"
+      logger.todo "Roll back migration"
 
   database:
     compile: (name)->
@@ -126,10 +126,10 @@ exports.Liquibase = {
     new: (name, recipe)->
       if !recipe?
         recipe = "database"      
-      logger.info "Create new database named #{name} using `#{recipe}` as a recipe."
+      logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
 
     tag: (tag)->
-      logger.info "Manually tag the database with '#{tag}'"
+      logger.todo "Manually tag the database with '#{tag}'"
 
     validate: (name)->
       logger.info "Validate a changeset file for the database named: #{name}"
@@ -139,10 +139,10 @@ exports.Liquibase = {
       @that.execute()
 
     doc: (name)->
-      logger.info "Generate liquibase documentation for the database named: #{name}"
+      logger.todo "Generate liquibase documentation for the database named: #{name}"
 
     sync: (name)->
-      logger.info "Mark all migrations as excuted in the database named #{name}"
+      logger.todo "Mark all migrations as excuted in the database named #{name}"
 
     reverseEngineer: (name, environment)->
       if !name?

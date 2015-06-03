@@ -26,3 +26,7 @@ exports.Logger =
     console.log msg
   exec: (msg)->
     @output chalk.bgBlue.white("EXEC"), msg
+  stub: (msg)->
+    @output chalk.bgRed.black(" STUB "), msg
+  todo: (msg)->
+    @output chalk.bgRed.black(" TODO "), msg    
