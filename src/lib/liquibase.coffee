@@ -75,13 +75,71 @@ exports.Liquibase = {
 
   migration:
     new: (migration, database, recipe)->
-      if !database?
-        database = "config.workshop.cson default"
+
+      recipePath = "_workshop/recipes/liquibase/changesets/"
+
+
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+      # todo - compile the jade file to xml before running
+
+      # todo - add error trap to make sure jade file exists
+    
+      database = database || configuration.defaults.database
+      logger.info "New migration for database named #{database} with #{recipe} recipe"
+
+      recipe = recipe || "create-table"
+
       if !recipe?
         recipe = "changeset"
 
-      logger.info "Create new #{migration} migration in the #{database} using `#{recipe}` as a recipe."
-      @that.execute()
+
+
+
+
+      modelPath = "_src/database_models/#{database}.jade"
+
+
+
+      recipe = utils.checkExtension(recipe, '.jade')
+
+
+      fs.open modelPath, 'r', (err)->
+        if err 
+          logger.error "#{modelPath} does not exist."
+        else
+          
+
+          # file doesn't exist, ok to create
+          fs.readFile "#{recipePath}/#{recipe}", { encoding: 'utf8' }, (err, data)->
+            if err
+              logger.error "#{recipePath}/#{recipe} does not exist"
+              return
+            else
+              logger.info "Using recipe: #{recipePath}/#{recipe}"
+              sid = utils.dateSid()
+              data = "\n" + data
+              data = data.replace /#{author}/g, process.env['USER'] || process.env['USERNAME']
+              data = data.replace /#{sid}/g, "sid#{sid}"
+              console.log data
+              fs.appendFile modelPath, data, (err)->
+                if err
+                  logger.error "Error writing #{modelPath}"
+                  return
+                else
+                  logger.info "Wrote #{modelPath}"
+
+
+
+
+
+
+
+
+
+
+
+      
+      #@that.execute()
 
     status: (database)->
       command = "status"
