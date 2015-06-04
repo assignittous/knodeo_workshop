@@ -1,0 +1,10 @@
+  changeSet(author="#{author}", id="#{sid}")
+    createTable(tableName="table_#{sid}")
+      column(name="id", type="int", autoIncrement="true")
+        constraints(primaryKey="true", nullable="false")
+      column(name="column_1", type="varchar(50)")
+      column(name="column_2", type="varchar(50)")
+        constraints(nullable="false")
+      column(name="column_3", type="char(2)")
+    rollback
+      dropTable(tableName="table_#{sid}")

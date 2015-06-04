@@ -1,0 +1,23 @@
+  changeSet(id="#{sid}",author="#{author}")
+
+  changeSet(author="#{author}", id="#{sid}")
+    createTable(tableName="d_currency", schemaName="dw")
+      column(name="id", type="int", autoIncrement="true")
+        constraints(primaryKey="true", nullable="false")
+      column(name="code", type="CHAR(3)")
+      column(name="description", type="VARCHAR(255)")
+      column(name="is_base", type="BOOLEAN")
+    rollback
+      dropTable(tableName="d_currency", schemaName="dw")
+    createTable(tableName="f_exchange_rates", schemaName="dw")
+      column(name="id", type="int", autoIncrement="true")
+        constraints(primaryKey="true", nullable="false")
+      column(name="date", type="DATE")
+      column(name="date_sid", type="int")
+      column(name="code", type="DECIMAL(10)")
+      column(name="rate", type="DECIMAL(10)")
+    rollback
+      dropTable(tableName="f_exchange_rates", schemaName="dw")
+
+  changeSet(author="#{author}", id="#{sid}")
+    tagDatabase(tag="oxr_dw_0")

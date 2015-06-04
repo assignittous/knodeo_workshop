@@ -1,0 +1,23 @@
+  changeSet(id="#{sid}",author="#{author}")
+    sql
+      :cdata
+         CREATE SCHEMA IF NOT EXISTS open_exchange_rates;
+    rollback
+      sql
+        :cdata
+           DROP SCHEMA IF EXISTS open_exchange_rates;
+
+  changeSet(author="#{author}", id="#{sid}")
+    createTable(tableName="exchange_rates", schemaName="open_exchange_rates")
+      column(name="id", type="int", autoIncrement="true")
+        constraints(primaryKey="true", nullable="false")
+      column(name="date", type="DATE")
+      column(name="date_sid", type="int")
+      column(name="code", type="char(3)")
+      column(name="description", type="varchar(255)")
+  
+    rollback
+      dropTable(tableName="exchange_rates", schemaName="open_exchange_rates")
+
+  changeSet(author="#{author}", id="#{sid}")
+    tagDatabase(tag="oxr_stage_0")

@@ -1,0 +1,15 @@
+doctype etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd"
+etl
+  properties
+    include(href="etl.properties")
+  connection#target(driver="$db.name.class", url="$db.name.url", user="$db.name.user", password="$db.name.password", classpath="$db.name.classPath")
+  connection#file(driver="csv", url="../data/data.csv").
+    #Use empty quote to turn off quoting
+    quote=
+    separator=;
+    headers=true
+    trim=false
+    skip_lines=0
+  query(connection-id="file")
+    script(connection-id="target").
+      INSERT INTO people (full_name) VALUES (?firstname || " " || ?lastname);

@@ -1,0 +1,67 @@
+doctype etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd"
+etl
+  properties
+    include(href="etl.properties")
+  connection#target(driver="$db.name.class", url="$db.name.url", user="$db.name.user", password="$db.name.password", classpath="$db.name.classPath")
+
+  script(connection-id="target")
+    :cdata
+      -- Create date dimension data
+
+      insert into d_date 
+
+
+      SELECT  
+        date_base.id,
+        date_base."calendarDate",
+        date_base."calendarYear",
+        date_base."calendarQuarter",
+        date_base."calendarMonth",
+        date_base."calendarWeek",
+        date_base."calendarDay",
+        date_base."calendarWeekday",
+        
+          -- NOTE: HARD CODED YEARS
+          (date_base."calendarYear" - 2010 + 1) as dimensionYear,
+          (4 * (date_base."calendarYear" - 2010 + 1) - 4 + date_base."calendarQuarter") as "dimensionQuarter",
+          (12 * (date_base."calendarYear" - 2010 + 1) - 12 + date_base."calendarMonth") as "dimensionMonth",
+          -- NOTE: HARD CODED DATE
+          CASE WHEN (date_base."calendarDate" < '2010-01-04'::date) THEN
+           NULL
+          else
+            -- NOTE: HARD CODED DATE
+            floor((date_base."calendarDate" - '2010-01-04'::date) / 7)
+          END as "dimensionWeek",
+          -- NOTE: HARD CODED DATE
+          (date_base."calendarDate" - '2010-01-01'::date + 1) as "dimensionDay",  
+        
+
+        
+        
+        date_base."calendarMonthName",
+        date_base."calendarMonthNameAbbreviation",
+        date_base."calendarWeekdayName",
+        date_base."calendarWeekdayNameAbbreviation"        
+      from (
+        select 
+          to_number(to_char(d.d::date,'YYYYMMDD'),'99999999') as id,
+          d.d::date as "calendarDate",
+          to_number(to_char(d.d::date,'YYYY'),'99999999') as "calendarYear",
+          to_number(to_char(d.d::date,'Q'),'99999999') as "calendarQuarter",
+          to_number(to_char(d.d::date,'MM'),'99999999') as "calendarMonth",
+          -- ISO Week, based on thu
+          to_number(to_char(d.d::date,'IW'),'99999999') as "calendarWeek",
+          to_number(to_char(d.d::date,'DD'),'99999999') as "calendarDay",
+          (to_number(to_char(d.d::date,'D'),'9') -1) as "calendarWeekday",
+
+          to_char(d.d::date,'Month') as "calendarMonthName",                       
+          to_char(d.d::date,'Mon') as "calendarMonthNameAbbreviation",
+          to_char(d.d::date,'Day') as "calendarWeekdayName",
+          to_char(d.d::date,'Dy') as "calendarWeekdayNameAbbreviation"
+          
+        from 
+          -- generated within the sql using a function
+          generate_series('2010-01-01'::date, '2030-12-31', '1 day') d(d)
+      ) as date_base
+
+

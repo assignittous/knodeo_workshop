@@ -1,0 +1,6 @@
+  changeSet(id="#{sid}",author="#{author}")
+    dropView(viewname="view_#{sid}")
+    rollback
+      createView(replaceIfExists="true", viewname="view_#{sid}")
+        :cdata
+           select id, name from person where id < 10

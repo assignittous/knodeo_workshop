@@ -1,0 +1,12 @@
+  changeSet(author="#{author}", id="#{sid}")
+    addColumn(tableName="#{table_name}")
+      column(name="id", type="int", autoIncrement="true")
+        constraints(primaryKey="true", nullable="false")
+      column(name="column_1", type="varchar(50)")
+      column(name="column_2", type="varchar(50)")
+        constraints(nullable="false")
+      column(name="column_3", type="char(2)")
+    rollback
+      dropColumn(tableName="#{table_name}", columnName="column_1")
+      dropColumn(tableName="#{table_name}", columnName="column_2")
+      dropColumn(tableName="#{table_name}", columnName="column_3")

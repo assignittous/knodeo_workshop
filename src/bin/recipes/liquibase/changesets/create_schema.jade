@@ -1,0 +1,8 @@
+  changeSet(id="#{sid}",author="#{author}")
+    sql
+      :cdata
+         CREATE SCHEMA IF NOT EXISTS myschema;
+    rollback
+      sql
+        :cdata
+           DROP SCHEMA IF EXISTS myschema;
