@@ -11,6 +11,7 @@ logger = require('../lib/logger').Logger
 shell = require('shelljs')
 fs = require('fs')
 CSON = require('cson')
+jade = require('jade')
 cwd = process.env.PWD || process.cwd()
 gulp   = require('gulp')
 rename = require('gulp-rename')
@@ -89,10 +90,16 @@ exports.Liquibase = {
       @that.execute(true)
 
     run: (database, environment, options)->
-
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
       # todo - compile the jade file to xml before running
 
+    
+      environment = environment || configuration.defaults.environment
+      database = database || configuration.defaults.database
       logger.info "Run migration for database named #{database} in #{environment} environment"
+      logger.info "Compile jade file"
+      @that.database.compile(database)
+      logger.info "Was that synchronous? Compile should have been done."
 
       command = "update"
       commandParameter = ""
@@ -114,7 +121,8 @@ exports.Liquibase = {
       @that.command.push command      
       if commandParameter.length > 0
         @that.command.push commandParameter
-      @that.execute(true)
+      logger.todo "EXECUTE the migration using liquibase"
+      # @that.execute(true)
 
 
 
@@ -123,7 +131,14 @@ exports.Liquibase = {
 
   database:
     compile: (name)->
-      console.log "compile the specified database file"
+      sourcePath = "_src/database_models/#{name}.jade"
+      outputPath = "_workshop/liquibase/#{name}.xml"
+
+      compiled = jade.compileFile(sourcePath, {pretty: true})
+      fs.writeFileSync(outputPath, compiled())     
+      console.log "compile to specified database file: #{outputPath}"
+
+
     new: (name, recipe)->
       #logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
 
