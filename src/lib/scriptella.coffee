@@ -11,9 +11,10 @@ fs = require('fs')
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
 gulp   = require('gulp')
-jade = require('gulp-jade')
+jade = require('jade')
 plumber = require('gulp-plumber')
 rename = require('gulp-rename')
+utils = require('../lib/utilities').Utilities
 
 exports.Scriptella = {
   command: ['scriptella']
@@ -77,31 +78,28 @@ exports.Scriptella = {
       .pipe(gulp.dest("./scriptella"))
       
     new: (name, recipe)->
-      if !recipe?
-        recipe = "default"
+      recipe = recipe || "job"
 
       console.log "Create new #{name} script using `#{recipe}` as a recipe."
       # Set the filename if the --name arguments was provided
-      if name?
-        filename = name
-      else
-        filename = "#{utils.dateSid()}-job"
+
+      filename = name || "#{utils.dateSid()}-job"
+      recipePath = "_workshop/recipes/scriptella/"
 
       # check that the file doesn't exist, otherwise throw an error
       # note, uses fs.open instead of fs.exists as fs.exists will be deprecated in a future version of Node
 
-      if recipe?
-        recipe = utils.checkExtension(recipe, '.jade')
-      else
-        recipe = "job.jade"
+      
+      recipe = utils.checkExtension(recipe, '.jade')
+      
 
-      path = "./jobs/#{filename}.jade"
+      path = "_src/elt_scripts/#{filename}.jade"
 
       fs.open path, 'r', (err)->
         if err # file doesn't exist, ok to build
-          gulp.src("./recipes/scriptella/#{recipe}")
+          gulp.src("#{recipePath}/#{recipe}")
           .pipe(rename({ basename: filename }))
-          .pipe(gulp.dest("./jobs"))
+          .pipe(gulp.dest("_src/elt_scripts/"))
           logger.info "Created #{path}"
         else
           logger.info "The file already exists, please try with a new filename"

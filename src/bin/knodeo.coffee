@@ -79,7 +79,7 @@ subcommand.new.action ()->
     liquibase.migration.new subcommand.new.migration, subcommand.new.forDatabase, subcommand.new.usingRecipe
 
   if subcommand.new.script?
-    console.log "Create a new scriptella #{subcommand.new.script}"
+    scriptella.script.new subcommand.new.script, subcommand.new.usingRecipe
 
   if subcommand.new.database?
     liquibase.database.new subcommand.new.database, subcommand.new.usingRecipe

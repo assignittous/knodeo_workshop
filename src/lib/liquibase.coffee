@@ -13,8 +13,7 @@ fs = require('fs')
 CSON = require('cson')
 jade = require('jade')
 cwd = process.env.PWD || process.cwd()
-gulp   = require('gulp')
-rename = require('gulp-rename')
+
 utils = require('../lib/utilities').Utilities
 exports.Liquibase = {
   command: ["liquibase"]
