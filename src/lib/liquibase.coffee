@@ -97,9 +97,11 @@ exports.Liquibase = {
       environment = environment || configuration.defaults.environment
       database = database || configuration.defaults.database
       logger.info "Run migration for database named #{database} in #{environment} environment"
-      logger.info "Compile jade file"
+      
       @that.database.compile(database)
       logger.info "Was that synchronous? Compile should have been done."
+
+
 
       command = "update"
       commandParameter = ""
@@ -121,8 +123,8 @@ exports.Liquibase = {
       @that.command.push command      
       if commandParameter.length > 0
         @that.command.push commandParameter
-      logger.todo "EXECUTE the migration using liquibase"
-      # @that.execute(true)
+      #logger.todo "EXECUTE the migration using liquibase"
+      @that.execute(true)
 
 
 
@@ -136,7 +138,7 @@ exports.Liquibase = {
 
       compiled = jade.compileFile(sourcePath, {pretty: true})
       fs.writeFileSync(outputPath, compiled())     
-      console.log "compile to specified database file: #{outputPath}"
+      logger.info "Compiled #{sourcePath} to #{outputPath}"
 
 
     new: (name, recipe)->
