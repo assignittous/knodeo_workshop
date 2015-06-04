@@ -117,6 +117,7 @@ subcommand.run.action ()->
 
   if subcommand.run.script?
     console.log "new script! #{subcommand.run.script}"
+    scriptella.script.run subcommand.run.script, subcommand.run.environment
     return
 
 

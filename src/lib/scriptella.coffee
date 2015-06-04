@@ -63,12 +63,12 @@ exports.Scriptella = {
 
 
   script:
-    compile: ()->
+    compile: (name)->
       console.log "compile file"
       locals = {}
 
       locals.cwd = process.cwd()
-      sourcePath = "_src/elt_scripots/#{name}.jade"
+      sourcePath = "_src/elt_scripts/#{name}.jade"
       outputPath = "_workshop/scriptella/#{name}.xml"
       compiled = jade.compileFile(sourcePath, {pretty: true})
       fs.writeFileSync(outputPath, compiled(locals))     
@@ -110,10 +110,13 @@ exports.Scriptella = {
 
 
     run: (name)->
+      
       configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
       environment = environment || configuration.defaults.environment
-      database = database || configuration.defaults.database
-            
+      # database = database || configuration.defaults.database
+
+      @compile name
+
       console.log "Run scriptella script named #{name}"
       
       logger.warn "A manifest was not provided"
@@ -125,11 +128,11 @@ exports.Scriptella = {
         path = "scriptella/#{filename}"
 
 
-        shell.execSyncIfExists path, "scriptella #{path}", "The job name #{name} you entered doesn't exist"
+        #shell.execSyncIfExists path, "scriptella #{path}", "The job name #{name} you entered doesn't exist"
 
 
-      @that.command.push "sscriptella/#{filename}"
-      @that.execute command
+      #@that.command.push "sscriptella/#{filename}"
+      #@that.execute command
       
     runGroup: (group)->
 

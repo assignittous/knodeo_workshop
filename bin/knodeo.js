@@ -113,6 +113,7 @@ subcommand.run.action(function() {
   }
   if (subcommand.run.script != null) {
     console.log("new script! " + subcommand.run.script);
+    scriptella.script.run(subcommand.run.script, subcommand.run.environment);
   }
 });
 

@@ -1,3 +1,13 @@
+# 0.1.10
+
+Planned or in progress:
+
+* Updated initial changelog recipe to include a `0.0.0` tag to facilitate rollbacks
+* Wire in `knodeo run --script {scriptname}`
+* Wire in `knodeo run --script-group {groupname}` - also needs speccing
+* Fix `knodeo run --rollback` to support parameters
+
+
 # 0.1.9
 
 * Wired in recipe support
