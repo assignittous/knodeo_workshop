@@ -36,10 +36,10 @@ config.workshop.cson*
 *.csv
 data
 drivers
-liquibase
-scriptella
 workshop
 _workshop
+_src
+_data
 fogbugz.conf.json
 
 ############################
