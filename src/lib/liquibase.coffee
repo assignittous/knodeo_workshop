@@ -288,7 +288,11 @@ exports.Liquibase = {
       @that.execute(true)
       # todo - follow up tasks - convert xml file to jade
 
+    reset: (name, environment)->
+      logger.todo "Reset the database to tag 0.0.0"
 
+    rebuild: (name, environment)->
+      logger.todo "Run reset(), followed by migration.run()"
   functions: ["init","execute","setOptions"]
   init: ()->
     # Give grandchildren access to the root object
