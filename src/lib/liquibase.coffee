@@ -12,8 +12,9 @@ shell = require('shelljs')
 fs = require('fs')
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
-
-
+gulp   = require('gulp')
+rename = require('gulp-rename')
+utils = require('../lib/utilities').Utilities
 exports.Liquibase = {
   command: ["liquibase"]
 
@@ -124,9 +125,57 @@ exports.Liquibase = {
     compile: (name)->
       console.log "compile the specified database file"
     new: (name, recipe)->
-      if !recipe?
-        recipe = "database"      
-      logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
+      #logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
+
+      # Set the filename if the --name arguments was provided
+      
+      if name?
+        filename = name
+      else
+        filename = "#{utils.dateSid()}-data-model"
+
+      path = "_src/database_models/#{filename}.jade"
+
+      if recipe?
+        recipe = utils.checkExtension(recipe, '.jade')
+      else
+        recipe = "new-model.jade"
+
+      fs.open path, 'r', (err)->
+        if err 
+          # file doesn't exist, ok to create
+          fs.readFile "_workshop/recipes/liquibase/#{recipe}", { encoding: 'utf8' }, (err, data)->
+            if err
+              logger.error "_workshop/recipes/liquibase/#{recipe} does not exist"
+              return
+            else
+              logger.info "Using recipe: /recipes/liquibase/#{recipe}"
+              data = data.replace /#{table_name}/g, "tablename"
+              data = data.replace /#{id}/g, utils.dateSid()
+              data = data.replace /#{db_user_name}/g, "db_user_name"
+              data = data.replace /#{db_user_name}/g, "author"
+              console.log data
+              fs.writeFile path, data, (err)->
+                if err
+                  logger.error "Error writing #{path}"
+                  return
+                else
+                  logger.info "Wrote #{path}"
+        else
+          logger.error "/databases/#{filename} already exists, please try with a new filename"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     tag: (tag)->
       logger.todo "Manually tag the database with '#{tag}'"
