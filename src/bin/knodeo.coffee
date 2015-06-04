@@ -55,11 +55,14 @@ help.action ()->
 
 
 
+
 subcommand.init = program.command 'init'
 subcommand.init.description 'Initialize knodeo for the current working folder'
 subcommand.init.action ()->
 
   init.all()
+
+# todo upgrade handling new recipes
 
 
 subcommand.new = program.command 'new'

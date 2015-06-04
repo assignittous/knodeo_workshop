@@ -139,17 +139,17 @@ exports.Liquibase = {
       if recipe?
         recipe = utils.checkExtension(recipe, '.jade')
       else
-        recipe = "new-model.jade"
+        recipe = "default.jade"
 
       fs.open path, 'r', (err)->
         if err 
           # file doesn't exist, ok to create
-          fs.readFile "_workshop/recipes/liquibase/#{recipe}", { encoding: 'utf8' }, (err, data)->
+          fs.readFile "_workshop/recipes/liquibase/data-models/#{recipe}", { encoding: 'utf8' }, (err, data)->
             if err
-              logger.error "_workshop/recipes/liquibase/#{recipe} does not exist"
+              logger.error "_workshop/recipes/liquibase/data-models/#{recipe} does not exist"
               return
             else
-              logger.info "Using recipe: /recipes/liquibase/#{recipe}"
+              logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
               data = data.replace /#{table_name}/g, "tablename"
               data = data.replace /#{id}/g, utils.dateSid()
               data = data.replace /#{db_user_name}/g, "db_user_name"
