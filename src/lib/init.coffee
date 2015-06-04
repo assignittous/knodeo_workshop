@@ -32,15 +32,16 @@ exports.Init =
   setupFolderTree: ()->
     basepath = "./_workshop"
     subfolders = [
-      "./_workshop/src"
       "./_workshop/data"
       "./_workshop/drivers"
       "./_workshop/scriptella"
       "./_workshop/liquibase"
       "./_workshop/recipes"
-      "./_workshop/src/data"
-      "./_workshop/src/database_models"
-      "./_workshop/src/elt_scripts"      
+      "./_data"
+      "./_src"
+      "./_src/data"
+      "./_src/database_models"
+      "./_src/elt_scripts"      
     ]
     # Check for ./_site folder
     fs.readdir basepath, (err, paths) ->
