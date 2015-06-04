@@ -44,7 +44,7 @@ subcommand.init = program.command('init');
 subcommand.init.description('Initialize knodeo for the current working folder');
 
 subcommand.init.action(function() {
-  return init["do"]();
+  return init.all();
 });
 
 subcommand["new"] = program.command('new');

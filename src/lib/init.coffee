@@ -62,7 +62,7 @@ exports.Init =
     console.log "move recipes from: #{confTemplatePath}"
     gulp.src(confTemplatePath).pipe(gulp.dest("_workshop/recipes"))
 
-  do: ()->
+  all: ()->
     @setupFolderTree()
     @setupConfigFile()
     @setupRecipes()
