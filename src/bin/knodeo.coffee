@@ -92,7 +92,7 @@ subcommand.run.unknownOption = noOp
 subcommand.run.description 'Create a new thing'
 subcommand.run.option "-m, --migration", "migration"
 subcommand.run.option "-m, --rollback", "rollback"
-subcommand.run.option "-d, --for-database", "database name"
+subcommand.run.option "-d, --for-database [database_name]", "database name"
 subcommand.run.option "-s, --script [script_name]", "script name"
 subcommand.run.option "-e, --environment [environment]", "environment"
 subcommand.run.option "-c, --count [count]", "count"
@@ -106,8 +106,18 @@ subcommand.run.action ()->
       count: subcommand.run.count
       sql: subcommand.run.sql
     liquibase.migration.run subcommand.run.forDatabase, subcommand.run.environment, options
+    return
+
+  if subcommand.run.rollback?
+    options =
+      count: subcommand.run.count
+      sql: subcommand.run.sql
+    liquibase.migration.rollback subcommand.run.forDatabase, subcommand.run.environment, options
+    return
+
   if subcommand.run.script?
     console.log "new script! #{subcommand.run.script}"
+    return
 
 
 

@@ -93,6 +93,7 @@ exports.Liquibase = {
       configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
       # todo - compile the jade file to xml before running
 
+      # todo - add error trap to make sure jade file exists
     
       environment = environment || configuration.defaults.environment
       database = database || configuration.defaults.database
@@ -128,14 +129,24 @@ exports.Liquibase = {
 
 
 
-    rollback: (database)->
-      logger.todo "Roll back migration"
+    rollback: (database, environment, options)->
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+      database = database || configuration.defaults.database
+      logger.info "Roll back migration"
+      command = "rollback"
+
+      @that.setOptions(database, environment)
+      @that.command.push command
+      @that.execute(true)
+
 
   database:
+
+    # Compile the database model's jade file into XML
+    
     compile: (name)->
       sourcePath = "_src/database_models/#{name}.jade"
       outputPath = "_workshop/liquibase/#{name}.xml"
-
       compiled = jade.compileFile(sourcePath, {pretty: true})
       fs.writeFileSync(outputPath, compiled())     
       logger.info "Compiled #{sourcePath} to #{outputPath}"

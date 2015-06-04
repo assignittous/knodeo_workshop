@@ -83,7 +83,7 @@ subcommand.run.option("-m, --migration", "migration");
 
 subcommand.run.option("-m, --rollback", "rollback");
 
-subcommand.run.option("-d, --for-database", "database name");
+subcommand.run.option("-d, --for-database [database_name]", "database name");
 
 subcommand.run.option("-s, --script [script_name]", "script name");
 
@@ -101,9 +101,18 @@ subcommand.run.action(function() {
       sql: subcommand.run.sql
     };
     liquibase.migration.run(subcommand.run.forDatabase, subcommand.run.environment, options);
+    return;
+  }
+  if (subcommand.run.rollback != null) {
+    options = {
+      count: subcommand.run.count,
+      sql: subcommand.run.sql
+    };
+    liquibase.migration.rollback(subcommand.run.forDatabase, subcommand.run.environment, options);
+    return;
   }
   if (subcommand.run.script != null) {
-    return console.log("new script! " + subcommand.run.script);
+    console.log("new script! " + subcommand.run.script);
   }
 });
 
