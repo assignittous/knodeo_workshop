@@ -7,13 +7,11 @@ This library is a wrapper for running scriptella.
 ###
 logger = require('../lib/logger').Logger
 shell = require('shelljs')
-fs = require('fs')
+fs = require('fs-extra')
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
-gulp   = require('gulp')
 jade = require('jade')
-plumber = require('gulp-plumber')
-rename = require('gulp-rename')
+
 utils = require('../lib/utilities').Utilities
 
 exports.Scriptella = {
@@ -70,13 +68,14 @@ exports.Scriptella = {
       locals = {}
 
       locals.cwd = process.cwd()
+      sourcePath = "_src/elt_scripots/#{name}.jade"
+      outputPath = "_workshop/scriptella/#{name}.xml"
+      compiled = jade.compileFile(sourcePath, {pretty: true})
+      fs.writeFileSync(outputPath, compiled(locals))     
+      logger.info "Compiled #{sourcePath} to #{outputPath}"
 
-      gulp.src("./jobs/**/*.jade")
-      .pipe(plumber())
-      .pipe(jade({ locals: locals, pretty: true  }))
-      .pipe(rename({ extname: ".xml"   }))
-      .pipe(gulp.dest("./scriptella"))
-      
+
+
     new: (name, recipe)->
       recipe = recipe || "job"
 
@@ -93,18 +92,28 @@ exports.Scriptella = {
       recipe = utils.checkExtension(recipe, '.jade')
       
 
-      path = "_src/elt_scripts/#{filename}.jade"
+      
 
-      fs.open path, 'r', (err)->
-        if err # file doesn't exist, ok to build
-          gulp.src("#{recipePath}/#{recipe}")
-          .pipe(rename({ basename: filename }))
-          .pipe(gulp.dest("_src/elt_scripts/"))
-          logger.info "Created #{path}"
+
+      source = "#{recipePath}/#{recipe}"
+      target = "_src/elt_scripts/#{filename}.jade"   
+      fs.readFile target, (err, paths) ->
+        if err
+          #console.log err
+          #console.log "should copy config"
+          fs.copySync source, target
+          logger.info "Created #{target}"
         else
-          logger.info "The file already exists, please try with a new filename"
+          logger.warn "Config file already exists. Please manually delete it and try again."
+
+
+
 
     run: (name)->
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+      environment = environment || configuration.defaults.environment
+      database = database || configuration.defaults.database
+            
       console.log "Run scriptella script named #{name}"
       
       logger.warn "A manifest was not provided"
