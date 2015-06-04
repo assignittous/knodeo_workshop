@@ -50,6 +50,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-task-master": "^1.0.0",
     "harvest": "^0.1.0",
+    "json2xls": "0.0.5",
     "node-highrise-api": "^0.2.0",
     "shelljs": "^0.5.0",
     "sugar": "^1.4.1",
