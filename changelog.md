@@ -7,4 +7,5 @@
   * _workshop --> used primarily by Knodeo Workshop and infrequently modified by end users
 * Wired in `knodeo new --database {databasename}`
 * Wired in `knodeo run --migration` -- parameters not tested but should work
+* Wired in `knodeo run --rollback` -- parameters still outstanding
 * Tweaks to the gulp compilers (no impact to knodeo workshop users)

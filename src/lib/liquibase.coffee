@@ -134,7 +134,6 @@ exports.Liquibase = {
       database = database || configuration.defaults.database
       logger.info "Roll back migration"
       command = "rollback"
-
       @that.setOptions(database, environment)
       @that.command.push command
       @that.execute(true)
@@ -143,7 +142,7 @@ exports.Liquibase = {
   database:
 
     # Compile the database model's jade file into XML
-    
+
     compile: (name)->
       sourcePath = "_src/database_models/#{name}.jade"
       outputPath = "_workshop/liquibase/#{name}.xml"
