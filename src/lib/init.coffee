@@ -4,6 +4,7 @@
 
 logger = require('../lib/logger').Logger
 
+gulp   = require('gulp')
 
 fs = require('fs-extra')
 cwd = process.env.PWD || process.cwd()
@@ -15,7 +16,7 @@ exports.Init =
   setupConfigFile: ()->
     # copy the templates\
     mainModulePath = process.mainModule.filename
-    confTemplatePath = mainModulePath.replace('knodeo.js','config.workshop.template.cson')
+    confTemplatePath = mainModulePath.replace('knodeo.js','recipes/config.workshop.template.cson')
 
 
     source = confTemplatePath
@@ -55,10 +56,14 @@ exports.Init =
               logger.info "created #{path}"
 
   setupRecipes: ()->
-    # copy the recipes
-
+    # copy the recipes\
+    mainModulePath = process.mainModule.filename
+    confTemplatePath = mainModulePath.replace('knodeo.js','recipes/**/*.jade')    
+    console.log "move recipes from: #{confTemplatePath}"
+    gulp.src(confTemplatePath).pipe(gulp.dest("_workshop/recipes"))
 
   do: ()->
     @setupFolderTree()
     @setupConfigFile()
+    @setupRecipes()
     return
