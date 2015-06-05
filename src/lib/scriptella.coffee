@@ -16,6 +16,10 @@ utils = require('../lib/utilities').Utilities
 
 exports.Scriptella = {
   command: ['scriptella']
+  paths:
+    temp: "_workshop/temp"
+    source: "_src/elt_scripts"
+    xml: "_workshop/scriptella"  
   execute: (async)->
     logger.
     showOutput = true
@@ -73,8 +77,11 @@ exports.Scriptella = {
 
         output += "#{property}=#{value}\n"
 
-      fs.writeFileSync("_workshop/scriptella/etl.properties", output)
+
+
+      fs.writeFileSync("#{@that.paths.xml}/etl.properties", output)
       logger.info "Updated etl.properties for #{environment}"
+
 
   script:
     compile: (name)->
@@ -119,7 +126,7 @@ exports.Scriptella = {
           fs.copySync source, target
           logger.info "Created #{target}"
         else
-          logger.warn "Config file already exists. Please manually delete it and try again."
+          logger.warn "#{target} already exists. Please manually delete it or create a new script with a new name."
 
 
 
@@ -158,13 +165,17 @@ exports.Scriptella = {
   
 
   init: ()->
-    # Give grandchildren access to the root object
     that = @
+    # Check for prerequisite folders
+    Object.keys(@paths).each (path)->
+      fs.ensureDirSync that.paths[path]
+    # Give grandchildren access to the root object
+    
     keys = Object.keys(this)
     keys.each (key)->
-      if !["init","execute"].any key
+      if !["init","execute","paths"].any key
         that[key]["that"] = that
-    delete this.init
 
+    delete this.init
     return this
 }.init()

@@ -32,7 +32,7 @@ exports.Init =
   setupFolderTree: ()->
     basepath = "./_workshop"
     subfolders = [
-      "./_workshop/data"
+      "./_workshop"
       "./_workshop/drivers"
       "./_workshop/scriptella"
       "./_workshop/liquibase"
@@ -40,7 +40,6 @@ exports.Init =
       "./_workshop/temp"  
       "./_data"
       "./_src"
-      "./_src/data"
       "./_src/database_models"
       "./_src/elt_scripts"    
     ]
@@ -48,13 +47,13 @@ exports.Init =
     fs.readdir basepath, (err, paths) ->
         if err
           logger.warn "./_workshop not found"
-          fs.mkdirSync(basepath)
+          fs.ensureDirSync(basepath)
           logger.info "created ./_workshop"
         subfolders.each (path)->
           fs.readdir path, (err)->
             if err
               logger.warn "#{path} not found"
-              fs.mkdirSync(path)
+              fs.ensureDirSync(path)
               logger.info "created #{path}"
 
   setupRecipes: ()->
