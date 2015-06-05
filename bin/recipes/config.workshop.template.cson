@@ -1,16 +1,39 @@
-version: "0.1.9"
+version: "0.1.11"
+notifications:
+  email: {}
+  slack: {}
 liquibase:
   working_directory: ""
+  notifications:
+    development:
+      slack: ""
+      email: []
+    staging:
+      slack: ""
+      email: []
+    production:
+      slack: ""
+      email: []
+
 scriptella:
   working_directory: ""
+  notifications:
+    development:
+      slack: ""
+      email: []
+    staging:
+      slack: ""
+      email: []
+    production:
+      slack: ""
+      email: []  
   etl_properties:
-    environments:
-      development:
-        data_working_directory: "{{cwd}}"
-      staging:
-        data_working_directory: "{{cwd}}"
-      production:
-        data_working_directory: "{{cwd}}"            
+    development:
+      data_working_directory: "{{cwd}}"
+    staging:
+      data_working_directory: "{{cwd}}"
+    production:
+      data_working_directory: "{{cwd}}"            
 cloud:
   asana:
     key: ""
