@@ -1,12 +1,18 @@
-# 0.1.10
+# 0.1.11 (Planned)
 
-Planned or in progress:
-
-* Updated initial changelog recipe to include a `0.0.0` tag to facilitate rollbacks
-* Wire in `knodeo run --script {scriptname}`
 * Wire in `knodeo run --script-group {groupname}` - also needs speccing
 * Fix `knodeo run --rollback` to support parameters
+* Strip end of line whitespace from jade files before compiling to xml
 
+# 0.1.10
+
+* After updating, run `knodeo init` to add new folders
+* Updated initial changelog recipe to include a `0.0.0` tag to facilitate rollbacks
+* Precompile scriptella script when executing `knodeo run --script`
+* Precompile etl.properties when executing `knodeo run --script`
+* Wired in `knodeo run --script {scriptname}`
+* Add `_workshop/temp` folder for placing disposable intermediate files that are made when a knodeo command is executed
+* Still missing: Error traps
 
 # 0.1.9
 
