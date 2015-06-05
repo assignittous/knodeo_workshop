@@ -68,7 +68,13 @@ subcommand["new"].action(function() {
     liquibase.migration["new"](subcommand["new"].migration, subcommand["new"].forDatabase, subcommand["new"].usingRecipe);
   }
   if (subcommand["new"].script != null) {
-    scriptella.script["new"](subcommand["new"].script, subcommand["new"].usingRecipe);
+    if (subcommand["new"].script === true) {
+      logger.error("No script name was provided");
+      logger.info("The proper syntax is: knodeo new --script [script_name]");
+      return;
+    } else {
+      scriptella.script["new"](subcommand["new"].script, subcommand["new"].usingRecipe);
+    }
   }
   if (subcommand["new"].database != null) {
     return liquibase.database["new"](subcommand["new"].database, subcommand["new"].usingRecipe);

@@ -91,9 +91,11 @@ exports.Scriptella = {
       locals.cwd = process.cwd()
       sourcePath = "#{@that.paths.source}/#{name}.jade"
       outputPath = "#{@that.paths.xml}/#{name}.xml"
+
       compiled = jade.compileFile(sourcePath, {pretty: true})
       fs.writeFileSync(outputPath, compiled(locals))     
       logger.info "Compiled #{sourcePath} to #{outputPath}"
+      # remove temp file
 
 
 
@@ -106,10 +108,6 @@ exports.Scriptella = {
       filename = name || "#{utils.dateSid()}-job"
       recipePath = @that.paths.recipes
 
-      # check that the file doesn't exist, otherwise throw an error
-
-
-      
       recipe = utils.checkExtension(recipe, '.jade')
       
 

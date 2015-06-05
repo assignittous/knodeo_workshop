@@ -80,7 +80,12 @@ subcommand.new.action ()->
     liquibase.migration.new subcommand.new.migration, subcommand.new.forDatabase, subcommand.new.usingRecipe
 
   if subcommand.new.script?
-    scriptella.script.new subcommand.new.script, subcommand.new.usingRecipe
+    if subcommand.new.script == true
+      logger.error "No script name was provided"
+      logger.info "The proper syntax is: knodeo new --script [script_name]"
+      return
+    else
+      scriptella.script.new subcommand.new.script, subcommand.new.usingRecipe
 
   if subcommand.new.database?
     liquibase.database.new subcommand.new.database, subcommand.new.usingRecipe
