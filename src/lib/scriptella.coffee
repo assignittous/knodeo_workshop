@@ -116,8 +116,6 @@ exports.Scriptella = {
 
       fs.readFile target, (err, paths) ->
         if err
-          #console.log err
-          #console.log "should copy config"
           fs.copySync source, target
           logger.info "Created #{target}"
         else
