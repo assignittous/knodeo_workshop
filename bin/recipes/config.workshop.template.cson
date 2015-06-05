@@ -5,6 +5,7 @@ notifications:
 liquibase:
   working_directory: ""
   notifications:
+    events: []
     development:
       slack: ""
       email: []
@@ -18,6 +19,7 @@ liquibase:
 scriptella:
   working_directory: ""
   notifications:
+    events: []
     development:
       slack: ""
       email: []
