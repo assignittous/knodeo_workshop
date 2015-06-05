@@ -8,11 +8,13 @@
 ---
 ###
 
-del = require('del')
-gulp   = require('gulp')
+del = require "del"
+gulp   = require "gulp"
+coffee = require "gulp-coffee"
+plumber = require "gulp-plumber"
 
-coffee = require("gulp-coffee")
-plumber = require('gulp-plumber')
+# paths
+
 libPath = ["./lib/**/*.*"]
 sourcePath = ["./src/lib/**/*.coffee"]
 targetPath = "./lib"
