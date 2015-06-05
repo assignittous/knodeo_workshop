@@ -1,6 +1,8 @@
 # 0.1.11
 
+* After updating, run `knodeo init` to add new folders
 * Prewire config for notifications
+* Add `_src/elt_groups` to init
 
 # 0.1.10
 
