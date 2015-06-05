@@ -16,9 +16,6 @@ exports.Data =
 
 
   toCsv: (path, data)->
-    parentDirectory = require('path').dirname(path)
-    # if the parent directory doesn't exist, create it
-    fs.ensureDirSync parentDirectory
-    fs.writeFileSync(path, convert.arrayToCsv(data)) 
+    fs.outputFileSync(path, convert.arrayToCsv(data)) 
   
   toXlsx: (path, data)->

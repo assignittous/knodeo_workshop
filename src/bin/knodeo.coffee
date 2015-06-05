@@ -134,9 +134,6 @@ subcommand.get.description 'Create a new thing'
 subcommand.get.option "-f, --from [service_name]", "service name"
 subcommand.get.action ()->
   if services.any(subcommand.get.from)
-    #console.log "Get data from #{subcommand.get.from}"
-    #console.log "../lib/services/#{subcommand.get.from}"
-    # todo: validate the datadir
     require "../lib/services/#{subcommand.get.from}"
   else
     console.log "The service '#{subcommand.get.from}' isn't supported by this version of Knodeo Workshop"
