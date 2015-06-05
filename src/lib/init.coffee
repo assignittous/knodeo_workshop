@@ -41,7 +41,8 @@ exports.Init =
       "./_data"
       "./_src"
       "./_src/database_models"
-      "./_src/elt_scripts"    
+      "./_src/elt_scripts" 
+      "./_src/etl_groups"  
     ]
     # Check for ./_site folder
     fs.readdir basepath, (err, paths) ->
