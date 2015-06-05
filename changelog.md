@@ -1,3 +1,7 @@
+# 0.1.11
+
+* Prewire config for notifications
+
 # 0.1.10
 
 * After updating, run `knodeo init` to add new folders
