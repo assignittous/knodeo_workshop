@@ -5,30 +5,33 @@ notifications:
 liquibase:
   working_directory: ""
   notifications:
-    events: []
     development:
       slack: ""
       email: []
+      events: []
     staging:
       slack: ""
       email: []
+      events: []
     production:
       slack: ""
       email: []
-
+      events: []
 scriptella:
   working_directory: ""
   notifications:
-    events: []
     development:
       slack: ""
       email: []
+      events: []
     staging:
       slack: ""
       email: []
+      events: []
     production:
       slack: ""
-      email: []  
+      email: [] 
+      events: [] 
   etl_properties:
     development:
       data_working_directory: "{{cwd}}"

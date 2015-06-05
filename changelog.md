@@ -1,11 +1,3 @@
-# 0.1.11 (Planned)
-
-* Prewire config for notifications
-* Wire in `knodeo run --script-group {groupname}` - also needs speccing
-* Fix `knodeo run --rollback` to support parameters
-* Strip end of line whitespace from jade files before compiling to xml
-
-
 # 0.1.10
 
 * After updating, run `knodeo init` to add new folders
