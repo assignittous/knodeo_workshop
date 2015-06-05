@@ -16,21 +16,39 @@ config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
 
 data_dir = "#{cwd}/#{config.cloud.open_exchange_rates.data_path}"
-app_id = config.cloud.open_exchange_rates.app_id
-day = Date.create()
+
+
+day = Date.create(config.cloud.open_exchange_rates.for)
+
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 base_url = "http://openexchangerates.org"
 
-
-
+app_id = config.cloud.open_exchange_rates.app_id
+currency_list = config.cloud.open_exchange_rates.currencies
+base =  config.cloud.open_exchange_rates.base
+plan = config.cloud.open_exchange_rates.subscription
+isSubscriber = (plan != "free")
 
 # get currency list
+symbols = ""
 
+# currency list support requires an enterprise subscription
+
+# Note this url doesn't take parameters
 currencies = request.getObject "#{base_url}/currencies.json"
+
+if currency_list.length > 0
+  currency_list.union [base]
+  currencies = Object.select currencies, currency_list
+
+baseParameter = ""
+if isSubscriber
+  baseParameter = "&base=#{base}"
 
 descriptions = Object.values(currencies)
 
 dimension = Object.keys(currencies).map (code, index)->
+
   return {
     code: code
     description: descriptions[index]
@@ -41,17 +59,29 @@ output.toCsv "#{data_dir}/#{datestamp}_currencies.csv", dimension
   
 
 # get the rates
- 
-data = request.getObject "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}"
+console.log  "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}#{baseParameter}"
+data = request.getObject "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}#{baseParameter}"
+
 
 rates = Object.values(data.rates)  
 
-fact = Object.keys(data.rates).map (code, index)->
+if currency_list.length == 0
+  currency_list = Object.keys(data.rates)
+
+console.log currency_list
+console.log data.rates
+fact = currency_list.map (code)->
+  # the default rate for free accounts is USD
+  if (base == "USD") || isSubscriber
+    output_rate = data.rates[code]
+  else
+    output_rate = data.rates[base] / data.rates[code]
+
   return { 
     date:  datestamp
     date_sid: parseInt(day.format('{yyyy}{MM}{dd}'))
     code: code
-    rate: rates[index]
+    rate: output_rate
   }
 output.toCsv "#{data_dir}/#{datestamp}_rates.csv", fact
 
