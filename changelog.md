@@ -2,7 +2,9 @@
 
 * After updating, run `knodeo init` to add new folders
 * Prewire config for notifications
+* Config file improvements
 * Add `_src/elt_groups` to init
+* Get rid of some technical debt
 
 # 0.1.10
 
