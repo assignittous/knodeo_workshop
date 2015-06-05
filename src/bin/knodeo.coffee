@@ -8,6 +8,7 @@ program = require('commander')
 liquibase = require("../lib/liquibase").Liquibase
 scriptella = require("../lib/scriptella").Scriptella
 init = require("../lib/init").Init
+logger = require('../lib/logger').Logger
 
 noOp = ()-> 
   console.log "Nothing ran, couldn't understand your command"
@@ -116,7 +117,7 @@ subcommand.run.action ()->
     return
 
   if subcommand.run.script?
-    console.log "new script! #{subcommand.run.script}"
+    logger.info "Run scriptella script #{subcommand.run.script}"
     scriptella.script.run subcommand.run.script, subcommand.run.environment
     return
 

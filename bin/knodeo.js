@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var config, help, init, liquibase, noOp, pkg, program, result, scriptella, services, subcommand;
+var config, help, init, liquibase, logger, noOp, pkg, program, result, scriptella, services, subcommand;
 
 require('sugar');
 
@@ -14,6 +14,8 @@ liquibase = require("../lib/liquibase").Liquibase;
 scriptella = require("../lib/scriptella").Scriptella;
 
 init = require("../lib/init").Init;
+
+logger = require('../lib/logger').Logger;
 
 noOp = function() {
   return console.log("Nothing ran, couldn't understand your command");
@@ -112,7 +114,7 @@ subcommand.run.action(function() {
     return;
   }
   if (subcommand.run.script != null) {
-    console.log("new script! " + subcommand.run.script);
+    logger.info("Run scriptella script " + subcommand.run.script);
     scriptella.script.run(subcommand.run.script, subcommand.run.environment);
   }
 });

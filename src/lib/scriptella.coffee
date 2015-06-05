@@ -17,7 +17,7 @@ utils = require('../lib/utilities').Utilities
 exports.Scriptella = {
   command: ['scriptella']
   execute: (async)->
-
+    logger.
     showOutput = true
 
     #try
@@ -28,45 +28,60 @@ exports.Scriptella = {
     cmdoutput.stdout.on 'data', (data)->
       console.log data
   properties: 
-    generate: ()->
-
-      options = config.scriptellaOptions(shell.arguments.env)
+    generate: (environment)->
+      cwd = (process.env.PWD || process.cwd()).replace(/\\/g,'/')
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
       output = ""
 
-      options.databases.each (database)->
 
-        console.log database
-        driver = options.drivers[database.driver]
-        output += "db.#{database.key}.class=#{driver.class}\n"
-        output += "db.#{database.key}.classPath=#{process.cwd().replace(/\\/g,'/')}/#{driver.classPath}\n"
-        output += "db.#{database.key}.url=#{driver.baseUrl}#{database.host}:#{database.port}/#{database.database}\n"
-        output += "db.#{database.key}.user=#{database.user}\n"
-        output += "db.#{database.key}.password=#{database.password}\n"
+
+      drivers = configuration.databases.drivers
+      
+
+      Object.keys(drivers).each (driver)->
+        output += "driver.#{driver}.class=#{drivers[driver].class}\n"
+        output += "driver.#{driver}.classPath=#{drivers[driver].classPath.replace(/{{cwd}}/g, cwd)}\n"
+        output += "driver.#{driver}.baseUrl=#{drivers[driver].baseUrl}\n"
+
+
+      databases = configuration.databases
+
+      Object.keys(databases).remove("drivers").each (database)->
+
+        driver = drivers[databases[database][environment].driver]
+
+        # selected db for the environment
+        selected_database = databases[database][environment]
+        output += "db.#{database}.class=#{driver.class}\n"
+        output += "db.#{database}.classPath=#{driver.classPath.replace(/{{cwd}}/g, cwd)}\n"
+        output += "db.#{database}.url=#{driver.baseUrl}#{selected_database.host}:#{selected_database.port}/#{selected_database.database}\n"
+        output += "db.#{database}.user=#{selected_database.user}\n"
+        output += "db.#{database}.password=#{selected_database.password}\n"
         
         # console.log "database.etl_properties"
         if database.etl_properties?
           Object.keys(database.etl_properties).each (key)->
             output += "#{database.key}.#{key}=#{database.etl_properties[key]}\n"
+      
+      Object.keys(configuration.scriptella.etl_properties[environment]).each (property)->
 
-      Object.keys(options.etl_properties).each (property)->
+        value = configuration.scriptella.etl_properties[environment][property]
 
-        value = options.etl_properties[property]
-
-        if property == "data_working_directory" # this is a special case
-          if options.etl_properties[property] == "{{cwd}}"
-            value = process.cwd().replace(/\\/g,'/')
+        value = value.replace /{{cwd}}/g, cwd
+        console.log value
 
         output += "#{property}=#{value}\n"
 
-      fs.writeFileSync("./scriptella/etl.properties", output)
-
+      fs.writeFileSync("_workshop/scriptella/etl.properties", output)
+      logger.info "Updated etl.properties for #{environment}"
 
   script:
     compile: (name)->
-      console.log "compile file"
       locals = {}
 
+      trailingWhitespace = /( +)(?:\n|\r|\r\n)/m 
+      # str.replace(trailingWhitespace, '')
       locals.cwd = process.cwd()
       sourcePath = "_src/elt_scripts/#{name}.jade"
       outputPath = "_workshop/scriptella/#{name}.xml"
@@ -109,30 +124,20 @@ exports.Scriptella = {
 
 
 
-    run: (name)->
+    run: (name, environment)->
+
+      
       
       configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
       environment = environment || configuration.defaults.environment
       # database = database || configuration.defaults.database
+      @that.properties.generate(environment)
+      @that.script.compile name
 
-      @compile name
+      logger.info "Running scriptella..."
 
-      console.log "Run scriptella script named #{name}"
-      
-      logger.warn "A manifest was not provided"
-      # todo: add an argument for a manifest file to run manifests in a particular order
-
-      if name?
-        # run one
-        filename = utils.checkExtension(name,".xml")    
-        path = "scriptella/#{filename}"
-
-
-        #shell.execSyncIfExists path, "scriptella #{path}", "The job name #{name} you entered doesn't exist"
-
-
-      #@that.command.push "sscriptella/#{filename}"
-      #@that.execute command
+      @that.command.push  "_workshop/scriptella/#{name}.xml"
+      @that.execute()
       
     runGroup: (group)->
 
@@ -158,7 +163,8 @@ exports.Scriptella = {
     keys = Object.keys(this)
     keys.each (key)->
       if !["init","execute"].any key
-        that[key]["this"] = that
+        that[key]["that"] = that
     delete this.init
+
     return this
 }.init()
