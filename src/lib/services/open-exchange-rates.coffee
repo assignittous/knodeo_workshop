@@ -5,18 +5,17 @@
 'use strict'
 
 logger = require('../../lib/logger').Logger
-#shell = require('../lib/shell').Shell
-convert = require('../../lib/convert').Convert
-
+output = require('../../lib/data').Data
 request = require("../../lib/http").Http
+require('sugar')
+
+
 cwd = process.env.PWD || process.cwd()
 CSON = require('cson')
 config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
 
 
-fs = require('fs')
-require('sugar')
 
 
 data_dir = "#{cwd}/#{config.cloud.open_exchange_rates.data_path}"
@@ -59,7 +58,9 @@ codes.each (code, index)->
     code: code
     description: descriptions[index]
 
-fs.writeFileSync("#{data_dir}/#{datestamp}_currencies.csv", convert.arrayToCsv(dimension))    
+
+output.toCsv "#{data_dir}/#{datestamp}_currencies.csv", dimension
+  
 
 
 
@@ -68,7 +69,6 @@ fs.writeFileSync("#{data_dir}/#{datestamp}_currencies.csv", convert.arrayToCsv(d
 url = "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}"
 
 data = request.getObject(url)
-
 
 fact = []
 
@@ -85,6 +85,5 @@ codes.each (code, index)->
     date_sid: parseInt(day.format('{yyyy}{MM}{dd}'))
     code: code
     rate: exchange_rates[index]
-
-fs.writeFileSync("#{data_dir}/#{datestamp}_rates.csv", convert.arrayToCsv(fact))    
+output.toCsv "#{data_dir}/#{datestamp}_rates.csv", fact
 

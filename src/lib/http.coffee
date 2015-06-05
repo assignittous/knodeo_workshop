@@ -7,7 +7,7 @@ exports.Http =
   objectify: (response)->
     body = response.body.toString('utf8')
     obj = JSON.parse(body)
-    console.log JSON.stringify(obj,null,' ')
+    #console.log JSON.stringify(obj,null,' ')
     return obj
 
 

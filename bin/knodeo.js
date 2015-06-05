@@ -135,8 +135,6 @@ subcommand.get.option("-f, --from [service_name]", "service name");
 
 subcommand.get.action(function() {
   if (services.any(subcommand.get.from)) {
-    console.log("Get data from " + subcommand.get.from);
-    console.log("../lib/services/" + subcommand.get.from);
     return require("../lib/services/" + subcommand.get.from);
   } else {
     return console.log("The service '" + subcommand.get.from + "' isn't supported by this version of Knodeo Workshop");
