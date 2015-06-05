@@ -36,6 +36,7 @@ exports.Init =
       "./_workshop/drivers"
       "./_workshop/scriptella"
       "./_workshop/liquibase"
+      "./_workshop/logs"
       "./_workshop/recipes"
       "./_workshop/temp"  
       "./_data"
