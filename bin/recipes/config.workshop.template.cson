@@ -1,8 +1,34 @@
 version: "0.1.9"
 liquibase:
   working_directory: ""
+  notifications:
+    development:
+      slack: ""
+      email: []
+      events: []
+    staging:
+      slack: ""
+      email: []
+      events: []
+    production:
+      slack: ""
+      email: [] 
+      events: []   
 scriptella:
   working_directory: ""
+  notifications:
+    development:
+      slack: ""
+      email: []
+      events: []
+    staging:
+      slack: ""
+      email: []
+      events: []
+    production:
+      slack: ""
+      email: [] 
+      events: []   
   etl_properties:
     environments:
       development:
