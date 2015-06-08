@@ -1,7 +1,7 @@
 # 0.1.11
 
 * After updating, run `knodeo init` to add new folders
-* Prewire config for notifications
+* Prewire config and npms for notifications
 * Some config structure changes, and better default data_paths
 * Config file improvements
 * Add `_src/elt_groups` to init

@@ -1,7 +1,18 @@
 version: "0.1.9"
+logging: {}
 notifications:
-  email: {}
-  slack: {}
+  email: 
+    port: 465
+    host: 'localhost'
+    secure: true
+    requireTLS: true
+    authMethod: ''
+    user: 'user'
+    password: 'password'
+
+
+  slack:
+    hook_url: ''
 liquibase:
   working_directory: ""
   notifications:
