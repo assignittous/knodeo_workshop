@@ -25,8 +25,8 @@ base_url = "http://openexchangerates.org"
 
 app_id = config.cloud.open_exchange_rates.app_id
 currency_list = config.cloud.open_exchange_rates.currencies
-base =  config.cloud.open_exchange_rates.base
-plan = config.cloud.open_exchange_rates.subscription
+base =  config.cloud.open_exchange_rates.base || "USD"
+plan = config.cloud.open_exchange_rates.subscription || "free"
 isSubscriber = (plan != "free")
 
 # get currency list
@@ -35,6 +35,7 @@ symbols = ""
 # currency list support requires an enterprise subscription
 
 # Note this url doesn't take parameters
+logger.info "#{base_url}/currencies.json"
 currencies = request.getObject "#{base_url}/currencies.json"
 
 if currency_list.length > 0
@@ -56,10 +57,10 @@ dimension = Object.keys(currencies).map (code, index)->
 
 
 output.toCsv "#{data_dir}/#{datestamp}_currencies.csv", dimension
-  
+
 
 # get the rates
-console.log  "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}#{baseParameter}"
+logger.info  "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}#{baseParameter}"
 data = request.getObject "#{base_url}/api/historical/#{datestamp}.json?app_id=#{app_id}#{baseParameter}"
 
 
@@ -68,8 +69,8 @@ rates = Object.values(data.rates)
 if currency_list.length == 0
   currency_list = Object.keys(data.rates)
 
-console.log currency_list
-console.log data.rates
+#console.log currency_list
+#console.log data.rates
 fact = currency_list.map (code)->
   # the default rate for free accounts is USD
   if (base == "USD") || isSubscriber
@@ -83,5 +84,6 @@ fact = currency_list.map (code)->
     code: code
     rate: output_rate
   }
+
 output.toCsv "#{data_dir}/#{datestamp}_rates.csv", fact
 
