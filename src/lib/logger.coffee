@@ -13,6 +13,8 @@ require 'sugar'
 exports.Logger = 
   output: (type, msg)->
     console.log "[#{Date.create().format('{HH}:{mm}:{ss}')}] #{type} #{msg}"
+  debug: (msg)->
+    @output chalk.bgWhite.black(" DEBUG "), msg    
   info: (msg)->
     @output chalk.bgWhite.black(" INFO "), msg
   error: (msg)->

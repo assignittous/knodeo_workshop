@@ -1,5 +1,6 @@
 version: "0.1.9"
-logging: {}
+logging: 
+  events: ["info","error","warn","debug","info","error","warn","shell"]
 notifications:
   email: 
     port: 465
@@ -19,15 +20,15 @@ liquibase:
     development:
       slack: ""
       email: []
-      events: []
+      events: ["info","error","warn","debug","shell", "exec"]
     staging:
       slack: ""
       email: []
-      events: []
+      events: ["info","error","warn","debug","shell", "exec"]
     production:
       slack: ""
       email: [] 
-      events: []   
+      events: ["info","error","warn","debug","shell", "exec"] 
 scriptella:
   working_directory: ""
   notifications:
