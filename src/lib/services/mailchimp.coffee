@@ -6,7 +6,7 @@
 
 logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
-convert = require('../../lib/convert').Convert
+
 
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
@@ -15,9 +15,6 @@ config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 request = require("../../lib/http").Http
 
 
-
-
-fs = require('fs')
 require('sugar')
 
 day = Date.create()
