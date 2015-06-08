@@ -5,7 +5,7 @@
 'use strict'
 
 logger = require('../../lib/logger').Logger
-
+output = require('../../lib/data').Data
 convert = require('../../lib/convert').Convert
 
 CSON = require('cson')
@@ -98,7 +98,8 @@ data = request.getObject "#{baseUrl}/campaigns", { headers: headers }
 dataDir = "#{cwd}/#{mailchimpConfig.data_path}"
 
 if data.campaigns.length > 0
-  fs.writeFileSync("#{dataDir}/#{datestamp}_campaigns.csv", convert.arrayToCsv(data.campaigns, attributes.campaigns))     
+  
+  output.toCsv "#{dataDir}/#{datestamp}_campaigns.csv", data.campaigns, attributes.campaigns
 
 
 
@@ -116,10 +117,10 @@ data.campaigns.each (campaign)->
 
 
 if recipients.length > 0
-  fs.writeFileSync("#{dataDir}/#{datestamp}_recipients.csv", convert.arrayToCsv(recipients))     
+  output.toCsv "#{dataDir}/#{datestamp}_recipients.csv", recipients
 if settings.length > 0
-  fs.writeFileSync("#{dataDir}/#{datestamp}_settings.csv", convert.arrayToCsv(settings))     
+  output.toCsv "#{dataDir}/#{datestamp}_settings.csv", settings 
 if tracking.length > 0
-  fs.writeFileSync("#{dataDir}/#{datestamp}_tracking.csv", convert.arrayToCsv(tracking))     
+  output.toCsv "#{dataDir}/#{datestamp}_tracking.csv", tracking 
 if report_summary.length > 0
-  fs.writeFileSync("#{dataDir}/#{datestamp}_report_summary.csv", convert.arrayToCsv(report_summary))             
+  output.toCsv "#{dataDir}/#{datestamp}_report_summary.csv", report_summary

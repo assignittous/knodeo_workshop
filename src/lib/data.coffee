@@ -15,7 +15,7 @@ exports.Data =
   checkPath: (path)->
 
 
-  toCsv: (path, data)->
-    fs.outputFileSync(path, convert.arrayToCsv(data)) 
+  toCsv: (path, data, attributes)->
+    fs.outputFileSync(path, convert.arrayToCsv(data, attributes)) 
   
   toXlsx: (path, data)->
