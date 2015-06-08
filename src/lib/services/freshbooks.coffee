@@ -16,9 +16,7 @@ data_dir = "#{cwd}/#{configuration.cloud.freshbooks.data_path}"
 # Note: Freshbooks doesn't work with Node 0.12 because of the versoin of libxml2 required by the npm
 # http://www.freshbooks.com/developers/authentication
 
-api_url = configuration.cloud.freshbooks.api_url
-api_token = configuration.cloud.freshbooks.api_token
-freshbooks = new FreshBooks(api_url, api_token)
+freshbooks = new FreshBooks configuration.cloud.freshbooks.api_url, configuration.cloud.freshbooks.api_token
 
 
 # Some freshbooks attributes are line feed separated values
