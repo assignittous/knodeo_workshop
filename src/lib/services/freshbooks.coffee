@@ -4,10 +4,10 @@
 
 logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
-convert = require('../../lib/convert').Convert
+
 FreshBooks = require("freshbooks")
 CSON = require('cson')
-fs = require('fs')
+
 
 cwd = process.env.PWD || process.cwd()
 configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
