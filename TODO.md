@@ -1,6 +1,6 @@
 # Outstanding Roadmap Items
 
-## 0.1.11 (Planned)
+## Planned - Short Term / High Priority
 
 * Wire in `knodeo run --script-group {groupname}` - also needs speccing
 * Fix `knodeo run --rollback` to support parameters
