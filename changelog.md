@@ -2,13 +2,14 @@
 
 * After updating, run `knodeo init` to add new folders
 * Prewire config for notifications
+* Some config structure changes, and better default data_paths
 * Config file improvements
 * Add `_src/elt_groups` to init
 * Get rid of some technical debt
 * Open Exchange Rates Changes
   * Support base
   * Supports selecting currencies (no error checking for rejecting bad abbreviations yet)
-  * Supports "yesterday", "today" or hard coded date for `for` parameter. (no error checking)
+  * Supports "yesterday", "today" or hard coded date for `for` parameter. (no error checking, prewire only)
 
 
 # 0.1.10
