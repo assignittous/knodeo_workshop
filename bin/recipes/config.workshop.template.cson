@@ -1,4 +1,7 @@
 version: "0.1.9"
+notifications:
+  email: {}
+  slack: {}
 liquibase:
   working_directory: ""
   notifications:
