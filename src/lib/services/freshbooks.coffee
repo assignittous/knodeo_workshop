@@ -3,7 +3,7 @@
 'use strict'
 
 logger = require('../../lib/logger').Logger
-
+output = require('../../lib/data').Data
 convert = require('../../lib/convert').Convert
 FreshBooks = require("freshbooks")
 CSON = require('cson')
@@ -207,12 +207,7 @@ client.list  {}, (err, clients)->
     console.log "invoice list error"
     console.log err
   else
-    client_output = convert.arrayToCsv(clients, attributes.client)
-    console.log client_output
-
-    targetPath = "#{data_dir}/#{datestamp}_clients.csv"
-
-    fs.writeFileSync(targetPath, client_output)
+    output.toCsv "#{data_dir}/#{datestamp}_clients.csv", clients, attributes.client
 
 project = new freshbooks.Project()
 project.list {}, (err, projects)->
@@ -255,13 +250,13 @@ project.list {}, (err, projects)->
     
 
     if projects.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_projects.csv", convert.arrayToCsv(projects, attributes.project))
+      output.toCsv "#{data_dir}/#{datestamp}_projects.csv", projects, attributes.project
     if resources.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_resources.csv", convert.arrayToCsv(resources))
+      output.toCsv "#{data_dir}/#{datestamp}_resources.csv", resources
 
 
     if tasks.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_tasks.csv", convert.arrayToCsv(tasks))
+      output.toCsv "#{data_dir}/#{datestamp}_tasks.csv", tasks
 
 
 # expense categories
@@ -274,7 +269,7 @@ category.list {}, (err, categories)->
     console.log err
   else
     if categories.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_expense_categories.csv", convert.arrayToCsv(categories))     
+      output.toCsv "#{data_dir}/#{datestamp}_expense_categories.csv", categories
 
 # estimates
 
@@ -300,15 +295,11 @@ estimate.list {}, (err, estimates)->
       estimate.lines.each (line)->
         estimate_lines.push Object.merge( {estimate_id: estimate.estimate_id }, line)
 
-    console.log "estimate lines"
-    console.log JSON.stringify(estimate_lines,null,'\t')
-    console.log
-    console.log "estimates"
-    console.log JSON.stringify(estimates,null,'\t')
+
     if estimates.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_estimates.csv", convert.arrayToCsv(estimates, attributes.estimate))     
+      output.toCsv "#{data_dir}/#{datestamp}_estimates.csv", estimates, attributes.estimate    
     if estimate_lines.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_estimate_line_items.csv", convert.arrayToCsv(estimate_lines))     
+      output.toCsv "#{data_dir}/#{datestamp}_estimate_line_items.csv", estimate_lines
 
 
 expense = new freshbooks.Expense()
@@ -320,7 +311,7 @@ expense.list {}, (err, expenses)->
     console.log err
   else
     if expenses.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_expenses.csv", convert.arrayToCsv(expenses))     
+      output.toCsv "#{data_dir}/#{datestamp}_expenses.csv", expenses
 
 
 
@@ -342,10 +333,10 @@ invoice.list {}, (err, invoices)->
         invoice_lines.push Object.merge( {invoice_id: invoice.invoice_id }, line)
 
     if invoices.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_invoices.csv", convert.arrayToCsv(invoices, attributes.invoice))     
+      output.toCsv "#{data_dir}/#{datestamp}_invoices.csv", invoices, attributes.invoice
 
     if invoice_lines.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_invoice_line_items.csv", convert.arrayToCsv(invoice_lines))     
+      output.toCsv "#{data_dir}/#{datestamp}_invoice_line_items.csv", invoice_lines
 
 
 
@@ -361,7 +352,7 @@ item.list {}, (err, items)->
     console.log err
   else
     if items.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_items.csv", convert.arrayToCsv(items))     
+      output.toCsv "#{data_dir}/#{datestamp}_items.csv", items
 
 
 language = new freshbooks.Language()
@@ -373,8 +364,7 @@ language.list {}, (err, languages)->
     console.log err
   else
     if languages.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_languages.csv", convert.arrayToCsv(languages))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_languages.csv", languages
 
 
 staff = new freshbooks.Staff()
@@ -389,8 +379,7 @@ staff.list {}, (err, people)->
     #  person.staff = cleanedArrayAttribute(project.staff)
     #console.log JSON.stringify(people,null,"\t")
     if people.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_staff.csv", convert.arrayToCsv(people, attributes.staff))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_staff.csv", people, attributes.staff
 
 
 
@@ -404,8 +393,7 @@ payment.list {}, (err, payments)->
     console.log err
   else
     if payments.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_payments.csv", convert.arrayToCsv(payments))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_payments.csv", payments
 
 
 
@@ -430,11 +418,9 @@ recurring.list {}, (err, recurrings)->
         recurring_lines.push Object.merge( {recurring_id: recurring.recurring_id }, line)
 
     if recurrings.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_recurrings.csv", convert.arrayToCsv(recurrings, attributes.recurring))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_recurrings.csv", recurrings, attributes.recurring
     if recurring_lines.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_recurring_line_items.csv", convert.arrayToCsv(recurring_lines))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_recurring_line_items.csv", recurring_lines
 
 
 
@@ -452,8 +438,7 @@ tax.list {}, (err, taxes)->
     console.log err
   else
     if taxes.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_taxes.csv", convert.arrayToCsv(taxes))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_taxes.csv", taxes
 
 
 ## billable tasks
@@ -468,8 +453,7 @@ task.list {}, (err, tasks)->
   else
     console.log JSON.stringify(tasks,null,"\t")
     if tasks.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_tasks.csv", convert.arrayToCsv(tasks))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_tasks.csv", tasks
 
 
 time_entry = new freshbooks.Time_Entry()
@@ -481,7 +465,6 @@ time_entry.list {}, (err, time_entries)->
     console.log err
   else
     if time_entries.length > 0
-      fs.writeFileSync("#{data_dir}/#{datestamp}_time_entries.csv", convert.arrayToCsv(time_entries))     
-
+      output.toCsv "#{data_dir}/#{datestamp}_time_entries.csv", time_entries
 
 
