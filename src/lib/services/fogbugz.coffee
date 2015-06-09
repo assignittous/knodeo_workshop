@@ -41,13 +41,22 @@ request = require("../../lib/http").Http
 ###
 #console.log config
 
-baseUrl = ""
-loginUrl = "https://#{config.host}/api.asp?cmd=logon&email=#{config.username}&password=#{config.password}"
+baseUrl = "https://#{config.host}/api.asp?"
+token = ""
 
 
-loginAttempt = request.get loginUrl
+
+fogbugzUrl = (options)->
+  if Object.keys(options).length?
+    parameterList = "&#{Object.toQueryString(options)}"
+  else
+    parameterList = ""
+  return "#{baseUrl}?token=#{token}#{parameterList}"
+
+writeRaw = (path, options)->
 
 
+loginAttempt = request.get "#{baseUrl}cmd=logon&email=#{config.username}&password=#{config.password}"
 
 xmlParse loginAttempt, (err, data)->
   if err?
@@ -62,7 +71,7 @@ xmlParse loginAttempt, (err, data)->
         token = response.token.first()
         logger.info "Logged in to Fogbugz as #{config.username}"
 
-        baseUrl = "https://#{config.host}/api.asp?token=#{token}"
+        #baseUrl = "https://#{config.host}/api.asp?token=#{token}"
 
 
         # List projects
@@ -71,6 +80,9 @@ xmlParse loginAttempt, (err, data)->
         # projectsXml = 
         logger.info "Getting projects list"
         output.toRaw "#{config.data_path}/projects.xml", request.get("#{baseUrl}&cmd=listProjects&fIncludeDeleted=1")
+
+
+
         logger.info "Getting filters list"
         # List filters
         output.toRaw "#{config.data_path}/areas.xml", request.get("#{baseUrl}&cmd=listFilters")
@@ -87,7 +99,7 @@ xmlParse loginAttempt, (err, data)->
 
         logger.info "Getting areas"
         # List nondeleted areas
-        output.toRaw "#{config.data_path}/areas.xml", request.get("#{baseUrl}&cmd=listAreas")
+        output.toRaw "#{config.data_path}/areas.xml", request.get(fogbugzUrl(token, {cmd: "listAreas"}) )
 
         logger.info "Getting categories"
         # List categories
