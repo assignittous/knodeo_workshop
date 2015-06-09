@@ -70,8 +70,9 @@ xmlParse loginAttempt, (err, data)->
       if response.token?
         token = response.token.first()
         logger.info "Logged in to Fogbugz as #{config.username}"
+        logger.info "Token #{token}"
 
-        #baseUrl = "https://#{config.host}/api.asp?token=#{token}"
+        baseUrl += "token=#{token}"
 
 
         # List projects
@@ -79,13 +80,42 @@ xmlParse loginAttempt, (err, data)->
 
         # projectsXml = 
         logger.info "Getting projects list"
+        console.log "#{baseUrl}&cmd=listProjects&fIncludeDeleted=1"
         output.toRaw "#{config.data_path}/projects.xml", request.get("#{baseUrl}&cmd=listProjects&fIncludeDeleted=1")
 
 
 
         logger.info "Getting filters list"
+        console.log "#{baseUrl}&cmd=listFilters"
         # List filters
-        output.toRaw "#{config.data_path}/areas.xml", request.get("#{baseUrl}&cmd=listFilters")
+        filtersXml = request.get("#{baseUrl}&cmd=listFilters")
+        output.toRaw "#{config.data_path}/filters.xml", filtersXml 
+
+        # hunt for config.filter's id
+
+        xmlParse filtersXml, (err, obj)->
+          if err?
+            logger.error "Error trying to parse filters xml" 
+            console.log err
+          else
+            logger.info "Filters xml:"
+            console.log JSON.stringify(obj)
+
+            filters = obj.response.filters.first().filter
+            found = {}
+            if filters.length > 0
+              
+              filters.map (filter)->
+                found[filter._] = filter.$.sFilter
+
+              if Object.keys(found).any config.filter
+
+                logger.info "Filter: #{config.filter} Id is #{found[config.filter]}"
+                request.get("#{baseUrl}&cmd=setCurrentFilter&sFilter=#{found[config.filter]}")
+                output.toRaw "#{config.data_path}/cases.xml", request.get("#{baseUrl}&cmd=search") 
+
+              else
+                logger.warn "Filter named #{config.filter} in config file not found. Skipping case extraction."
 
 
 
@@ -99,7 +129,7 @@ xmlParse loginAttempt, (err, data)->
 
         logger.info "Getting areas"
         # List nondeleted areas
-        output.toRaw "#{config.data_path}/areas.xml", request.get(fogbugzUrl(token, {cmd: "listAreas"}) )
+        output.toRaw "#{config.data_path}/areas.xml", request.get(fogbugzUrl({cmd: "listAreas"}) )
 
         logger.info "Getting categories"
         # List categories
