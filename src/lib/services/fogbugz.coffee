@@ -60,7 +60,7 @@ xmlParse loginAttempt, (err, data)->
     else
       if response.token?
         token = response.token.first()
-        logger.info "Logged in to Fogbugz"
+        logger.info "Logged in to Fogbugz as #{config.username}"
 
         baseUrl = "https://#{config.host}/api.asp?token=#{token}"
 
@@ -93,6 +93,7 @@ xmlParse loginAttempt, (err, data)->
         # List categories
         output.toRaw "#{config.data_path}/categories.xml", request.get("#{baseUrl}&cmd=listCategories")
 
+        # This appears to be useless, even when loggin in as the account owner, doesn't produce any recrods
         logger.info "Getting people"
         # List nondeleted areas
         output.toRaw "#{config.data_path}/people.xml", request.get("#{baseUrl}&cmd=listPeople&fIncludeDeleted=1&fIncludeCommunity=1&fIncludeVirtual=1")
@@ -108,6 +109,11 @@ xmlParse loginAttempt, (err, data)->
         logger.info "Getting statuses"
         # List statuses
         output.toRaw "#{config.data_path}/statuses.xml", request.get("#{baseUrl}&cmd=listStatuses")        
+
+        logger.info "Getting mailboxes"
+        # List mailboxes
+        output.toRaw "#{config.data_path}/mailboxes.xml", request.get("#{baseUrl}&cmd=listMailboxes")        
+
 
         logger.info "Getting wikis"
 

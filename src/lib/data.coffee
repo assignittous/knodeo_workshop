@@ -15,10 +15,13 @@ exports.Data =
   checkPath: (path)->
 
 
-  toCsv: (path, data, attributes)->
+  toCsv: (path, data, attributes, transformFunction)->
     fs.outputFileSync(path, convert.arrayToCsv(data, attributes)) 
   
-  toXlsx: (path, data)->
+  toXlsx: (path, data, attributes, transformFunction)->
+
+  toXml: (path, data, attributes, transformFunction)->
+    
 
   toRaw: (path, data)->
     fs.outputFileSync(path, data)
