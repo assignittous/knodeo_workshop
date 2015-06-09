@@ -21,7 +21,8 @@ cwd = process.env.PWD || process.cwd()
 CSON = require('cson')
 configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 config = configuration.cloud.fogbugz
-data_dir = "#{cwd}/#{configuration.cloud.fogbugz.data_path}"
+output = require('../../lib/data').Data
+
 xmlParse = require('xml2js').parseString
 request = require("../../lib/http").Http
 
@@ -29,7 +30,6 @@ request = require("../../lib/http").Http
 # current version requires credentials written to cwd containing fogbugz credentials
 # todo - rewrite this using synchronous http
 
-#fogbugz = require('fogbugz')
 ###
 {"name":"response","childs":[{"name":"error","attrib":{"code":"1"},"childs":["Incorrect password or username"]}]}
 <?xml version="1.0" encoding="UTF-8"?><response><error code="1"><![CDATA[Incorrect password or username]]></error></response>
@@ -58,30 +58,72 @@ xmlParse loginAttempt, (err, data)->
     if response.error?
       logger.error "Fogbugz reported an error: #{response.error.first()._}"
     else
-      #console.log JSON.stringify(response)
       if response.token?
         token = response.token.first()
-        console.log token
+        logger.info "Logged in to Fogbugz"
 
         baseUrl = "https://#{config.host}/api.asp?token=#{token}"
+
 
         # List projects
 
 
-        projectsXml = request.get "#{baseUrl}&cmd=listProjects&fIncludeDeleted=1"
+        # projectsXml = 
+        logger.info "Getting projects list"
+        output.toRaw "#{config.data_path}/projects.xml", request.get("#{baseUrl}&cmd=listProjects&fIncludeDeleted=1")
+        logger.info "Getting filters list"
+        # List filters
+        output.toRaw "#{config.data_path}/areas.xml", request.get("#{baseUrl}&cmd=listFilters")
 
-        console.log projectsXml
 
 
-        # url format after login:
-        # https://#{config.host}/api.asp?token=#{token}&cmd=new&sTitle=New%20Case&sEvent=something
+        # todo:
+
+        # find the filter in the config 
+
+        # cmd=setCurrentFilter&sFilter=402
+        # followed by...
+        # cmd=search
+
+        logger.info "Getting areas"
+        # List nondeleted areas
+        output.toRaw "#{config.data_path}/areas.xml", request.get("#{baseUrl}&cmd=listAreas")
+
+        logger.info "Getting categories"
+        # List categories
+        output.toRaw "#{config.data_path}/categories.xml", request.get("#{baseUrl}&cmd=listCategories")
+
+        logger.info "Getting people"
+        # List nondeleted areas
+        output.toRaw "#{config.data_path}/people.xml", request.get("#{baseUrl}&cmd=listPeople&fIncludeDeleted=1&fIncludeCommunity=1&fIncludeVirtual=1")
+
+        logger.info "Getting categories"
+        # List statuses
+        output.toRaw "#{config.data_path}/categories.xml", request.get("#{baseUrl}&cmd=listStatuses")        
+
+        logger.info "Getting fix fors"
+        # List fixfors
+        output.toRaw "#{config.data_path}/fixfors.xml", request.get("#{baseUrl}&cmd=listFixFors&fIncludeDeleted=1&fIncludeReallyDeleted=1")       
+
+        logger.info "Getting statuses"
+        # List statuses
+        output.toRaw "#{config.data_path}/statuses.xml", request.get("#{baseUrl}&cmd=listStatuses")        
+
+        logger.info "Getting wikis"
+
+        # List wikis
+        output.toRaw "#{config.data_path}/wikis.xml", request.get("#{baseUrl}&cmd=listWikis")        
+
+        logger.info "Getting snippets"
+        # List snipets
+        output.toRaw "#{config.data_path}/snippets.xml", request.get("#{baseUrl}&cmd=listSnippets")        
 
 
         # logoff token:
 
         logoutXml = request.get "http://#{config.host}/api.asp?cmd=logoff&token=#{token}"
         # should yield an empty response
-        console.log logoutXml
+        logger.info "Logged out of Fogbugz"
         # 
 
       else

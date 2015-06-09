@@ -19,3 +19,6 @@ exports.Data =
     fs.outputFileSync(path, convert.arrayToCsv(data, attributes)) 
   
   toXlsx: (path, data)->
+
+  toRaw: (path, data)->
+    fs.outputFileSync(path, data)
