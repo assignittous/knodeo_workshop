@@ -55,6 +55,51 @@ fogbugzUrl = (options)->
 
 writeRaw = (path, options)->
 
+attributes = 
+  cases: [
+    "ixBug"
+    "ixBugParent"
+    "ixBugChildren"
+    "ixProject"
+    "fOpen"
+    "sProject"
+    "ixArea"
+    "sArea"
+    "sTitle"
+    "sStatus"
+    "ixPersonAssignedTo"
+    "sPersonAssignedTo"
+    "sEmailAssignedTo"
+    "ixPersonOpenedBy"
+    "ixPersonResolvedBy"
+    "ixPersonClosedBy"
+    "ixPersonLastEditedBy"
+    "ixStatus"
+    "ixBugDuplicates"
+    "ixBugOriginal"
+    "sStatus"
+    "ixPriority"
+    "sPriority"
+    "ixFixFor"
+    "sFixFor"
+    "dtFixFor"
+    "sVersion"
+    "sComputer"
+    "hrsOrigEst"
+    "hrsCurrEst"
+    "hrsElapsed"
+    "c"
+    "sCategory"
+    "dtOpened"
+    "dtResolved"
+    "dtClosed"
+    "ixBugEventLatest"
+    "dtLastUpdated"
+    "dtDue"
+    "dtLastView"
+    "ixRelatedBugs"
+    "dtLastOccurrence"
+  ]
 
 loginAttempt = request.get "#{baseUrl}cmd=logon&email=#{config.username}&password=#{config.password}"
 
@@ -112,7 +157,7 @@ xmlParse loginAttempt, (err, data)->
 
                 logger.info "Filter: #{config.filter} Id is #{found[config.filter]}"
                 request.get("#{baseUrl}&cmd=setCurrentFilter&sFilter=#{found[config.filter]}")
-                output.toRaw "#{config.data_path}/cases.xml", request.get("#{baseUrl}&cmd=search") 
+                output.toRaw "#{config.data_path}/cases.xml", request.get("#{baseUrl}&cmd=search&cols=#{attributes.cases.join(',')}") 
 
               else
                 logger.warn "Filter named #{config.filter} in config file not found. Skipping case extraction."
@@ -179,80 +224,3 @@ xmlParse loginAttempt, (err, data)->
         return
 
 
-#loginObject = request.getXml loginUrl
-#console.log JSON.stringify(loginObject)
-#if login?
-#  token = login.token
-
-#else
-#  logger.error "ERROR TRYING LOGIN"
-
-###
-attributes = [
-  "ixBug"
-  "ixBugParent"
-  "ixBugChildren"
-  "ixProject"
-  "fOpen"
-  "sProject"
-  "ixArea"
-  "sArea"
-  "sTitle"
-  "sStatus"
-  "ixPersonAssignedTo"
-  "sPersonAssignedTo"
-  "sEmailAssignedTo"
-  "ixPersonOpenedBy"
-  "ixPersonResolvedBy"
-  "ixPersonClosedBy"
-  "ixPersonLastEditedBy"
-  "ixStatus"
-  "ixBugDuplicates"
-  "ixBugOriginal"
-  "sStatus"
-  "ixPriority"
-  "sPriority"
-  "ixFixFor"
-  "sFixFor"
-  "dtFixFor"
-  "sVersion"
-  "sComputer"
-  "hrsOrigEst"
-  "hrsCurrEst"
-  "hrsElapsed"
-  "c"
-  "sCategory"
-  "dtOpened"
-  "dtResolved"
-  "dtClosed"
-  "ixBugEventLatest"
-  "dtLastUpdated"
-  "dtDue"
-  "dtLastView"
-  "ixRelatedBugs"
-  "dtLastOccurrence"
-]
-
-fogbugz.logon()
-.then (filters) ->
-  #console.log "filters"
-  #console.log filters
-  #console.log "setCurrentFilter 4"
-  fogbugz.setCurrentFilter(4)
-  #return fogbugz.listFilters()
-.then ()->
-  console.log "search"
-
-
-  return fogbugz.search("", attributes, 1000)
-.then (cases)->
-
-  output = convert.arrayToCsv(cases, attributes)
-  console.log output
-  day = Date.create()
-
-  datestamp = day.format('{yyyy}-{MM}-{dd}')
-  targetPath = "#{data_dir}/#{datestamp}_cases.csv"
-
-  fs.writeFileSync(targetPath, output)
-###
