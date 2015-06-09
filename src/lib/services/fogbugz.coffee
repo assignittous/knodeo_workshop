@@ -41,7 +41,8 @@ request = require("../../lib/http").Http
 ###
 #console.log config
 
-loginUrl = "http://#{config.host}/api.asp?cmd=logon&email=#{config.username}&password=#{config.password}"
+baseUrl = ""
+loginUrl = "https://#{config.host}/api.asp?cmd=logon&email=#{config.username}&password=#{config.password}"
 
 
 loginAttempt = request.get loginUrl
@@ -57,9 +58,31 @@ xmlParse loginAttempt, (err, data)->
     if response.error?
       logger.error "Fogbugz reported an error: #{response.error.first()._}"
     else
-      console.log JSON.stringify(response)
+      #console.log JSON.stringify(response)
       if response.token?
         token = response.token.first()
+        console.log token
+
+        baseUrl = "https://#{config.host}/api.asp?token=#{token}"
+
+        # List projects
+
+
+        projectsXml = request.get "#{baseUrl}&cmd=listProjects&fIncludeDeleted=1"
+
+        console.log projectsXml
+
+
+        # url format after login:
+        # https://#{config.host}/api.asp?token=#{token}&cmd=new&sTitle=New%20Case&sEvent=something
+
+
+        # logoff token:
+
+        logoutXml = request.get "http://#{config.host}/api.asp?cmd=logoff&token=#{token}"
+        # should yield an empty response
+        console.log logoutXml
+        # 
 
       else
         logger.error "Fogbugz didn't return a token on the login attempt"
