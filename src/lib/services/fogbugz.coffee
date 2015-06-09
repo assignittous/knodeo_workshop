@@ -219,6 +219,8 @@ xmlParse loginAttempt, (err, data)->
         logger.info "Logged out of Fogbugz"
         # 
 
+        logger.slack()
+
       else
         logger.error "Fogbugz didn't return a token on the login attempt"
         return

@@ -9,26 +9,51 @@ Outputs messages to the console.
 
 chalk = require('chalk')
 require 'sugar'
+slack = require('node-slack')
+CSON = require('cson')
+cwd = process.env.PWD || process.cwd()
+#logger = require('../lib/logger').Logger
 
-exports.Logger = 
-  output: (type, msg)->
-    console.log "[#{Date.create().format('{HH}:{mm}:{ss}')}] #{type} #{msg}"
+exports.Logger = {
+  log: []
+  init: ()->
+    @log = []
+    return this
+  completed: ()->
+    return @log.join("\n")
+  append: (type, msg)->
+    entry = "[#{Date.create().format('{HH}:{mm}:{ss}')}] #{type} #{msg}"
+    @log.push chalk.stripColor(entry)
+    console.log entry
   debug: (msg)->
-    @output chalk.bgWhite.black(" DEBUG "), msg    
+    @append chalk.bgWhite.black(" DEBUG "), msg    
   info: (msg)->
-    @output chalk.bgWhite.black(" INFO "), msg
+    @append chalk.bgWhite.black(" INFO "), msg
   error: (msg)->
-    @output chalk.bgRed.black(" ERROR "), msg
+    @append chalk.bgRed.black(" ERROR "), msg
   warn: (msg)->
-    @output chalk.bgYellow.black(" WARN "), msg
+    @append chalk.bgYellow.black(" WARN "), msg
   bot: (msg)->
-    @output chalk.bgGreen.white(" BOT "), msg
+    @append chalk.bgGreen.white(" BOT "), msg
   shell: (msg)->
-    @output chalk.bgBlue.white(" SHELL: "), ""
+    @append chalk.bgBlue.white(" SHELL: "), ""
     console.log msg
   exec: (msg)->
-    @output chalk.bgBlue.white("EXEC"), msg
+    @append chalk.bgBlue.white("EXEC"), msg
   stub: (msg)->
-    @output chalk.bgRed.black(" STUB "), msg
+    @append chalk.bgRed.black(" STUB "), msg
   todo: (msg)->
-    @output chalk.bgRed.black(" TODO "), msg    
+    @append chalk.bgRed.black(" TODO "), msg    
+  slack: ()->
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+    console.log configuration
+    hook_url = configuration.notifications.slack.webhook_url
+    console.log hook_url
+    session = new slack(hook_url)
+    session.send 
+      text: @completed()
+      channel: '#knodeo-workshop-test'
+      username: 'Knodeo Workshop Logger'
+    console.log "should have sent"
+
+}.init()
