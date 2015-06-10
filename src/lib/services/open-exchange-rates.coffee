@@ -3,34 +3,32 @@
 # Get exchange rates from openexchangerates.org
 
 'use strict'
+require('sugar')
 
+config = require("../../lib/configuration").Configuration
 logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
 request = require("../../lib/http").Http
-require('sugar')
+
+thisService = "open-exchange-rates"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
 
 
-cwd = process.env.PWD || process.cwd()
-CSON = require('cson')
-config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-
-
-data_dir = "#{cwd}/#{config.cloud.open_exchange_rates.data_path}"
-
-
-day = Date.create(config.cloud.open_exchange_rates.for)
+day = Date.create(serviceConfig.for)
 
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 base_url = "http://openexchangerates.org"
 
-app_id = config.cloud.open_exchange_rates.app_id
-currency_list = config.cloud.open_exchange_rates.currencies
-base =  config.cloud.open_exchange_rates.base || "USD"
-plan = config.cloud.open_exchange_rates.subscription || "free"
+app_id = serviceConfig.app_id
+currency_list = serviceConfig.currencies
+base =  serviceConfig.base || "USD"
+plan = serviceConfig.subscription || "free"
 isSubscriber = (plan != "free")
 
 # get currency list
 symbols = ""
+
 
 # currency list support requires an enterprise subscription
 
@@ -69,8 +67,6 @@ rates = Object.values(data.rates)
 if currency_list.length == 0
   currency_list = Object.keys(data.rates)
 
-#console.log currency_list
-#console.log data.rates
 fact = currency_list.map (code)->
   # the default rate for free accounts is USD
   if (base == "USD") || isSubscriber
@@ -87,6 +83,8 @@ fact = currency_list.map (code)->
 
 output.toCsv "#{data_dir}/#{datestamp}_rates.csv", fact
 
-logger.slack()
-logger.email()
+if config.doSlackForService(thisService)
+  logger.slack()
+if config.doEmailForService(thisService)
+  logger.email()
 
