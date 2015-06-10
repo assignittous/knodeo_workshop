@@ -27,5 +27,11 @@ exports.Configuration = {
   database: (database)->
     return database || @current.defaults.database
 
+  forService: (service)->
+    return @current.cloud[service]
+
+  dataDirectoryForService: (service)->
+    return "#{@cwd()}/#{@current.cloud[service].data_path}"
+
 
 }
