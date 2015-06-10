@@ -10,7 +10,7 @@ notifications:
     authMethod: ''
     user: 'user'
     password: 'password'
-
+    recipients: []
 
   slack:
     webhook_url: ''
