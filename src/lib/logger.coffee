@@ -40,7 +40,7 @@ exports.Logger = {
     @append chalk.bgBlue.white(" SHELL: "), ""
     console.log msg
   exec: (msg)->
-    @append chalk.bgBlue.white("EXEC"), msg
+    @append chalk.bgBlue.white(" EXEC "), msg
   stub: (msg)->
     @append chalk.bgRed.black(" STUB "), msg
   todo: (msg)->
