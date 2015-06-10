@@ -10,6 +10,9 @@ exports.Configuration = {
 
   # Load config file
 
+  cwd: ()->
+    process.env.PWD || process.cwd()
+
   load: ()->
     @current = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
@@ -18,6 +21,11 @@ exports.Configuration = {
   upgrade: ()->
 
 
+  environment: (env)->
+    return env || @current.defaults.environment
+
+  database: (database)->
+    return database || @current.defaults.database
 
 
 }
