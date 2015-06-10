@@ -135,15 +135,49 @@ exports.Scriptella = {
 
       @that.command.push  "#{@that.paths.xml}/#{name}.xml"
       @that.execute()
+
+
       
+    groupIterator: (name, group)->
+      that = @
+      if Object.isString(group)
+        logger.info "Run #{name}'s task #{group} (string)"
+
+      if Object.isArray(group)
+        logger.info "Scan #{name}'s tasks (array)"
+        group.each (task)->
+          logger.info "Run #{name}'s task #{task} (string)"          
+
+
+      if Object.isObject(group)
+        logger.info "Scan group #{name}'s children (object)"
+
+
+        keys = Object.keys(group)
+        keys.each (key)->
+          that.groupIterator key, group[key]
+
+      ###
+
+      keys = Object.keys(group)
+
+      keys.each (key)->
+        if group[key]
+      ###
     runGroup: (group, environment)->
       console.log "GROUP: #{group}"
       console.log "ENV: #{environment}"
 
-
+      that = @
       groupfile = CSON.parseCSONFile("#{cwd}/_src/etl_groups/#{group}.cson")
 
-      console.log groupfile
+      #console.log groupfile
+
+
+      rootKeys = Object.keys(groupfile)
+
+      rootKeys.each (rootkey)->
+        that.groupIterator rootkey, groupfile[rootkey]
       # run one
       #filename = utils.checkExtension(shell.arguments.manifest,".cson")    
       #path = "job_manifests/#{filename}"
