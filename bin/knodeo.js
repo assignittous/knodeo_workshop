@@ -85,8 +85,6 @@ subcommand["new"].action(function() {
 
 subcommand.run = program.command('run');
 
-subcommand.run.unknownOption = noOp;
-
 subcommand.run.description('Create a new thing');
 
 subcommand.run.option("-m, --migration", "migration");
@@ -97,13 +95,15 @@ subcommand.run.option("-d, --for-database [database_name]", "database name");
 
 subcommand.run.option("-s, --script [script_name]", "script name");
 
-subcommand["new"].option("-g, --script-group [script_name]", "script group");
+subcommand.run.option("-g, --script-group [group_name]", "script group");
 
 subcommand.run.option("-e, --environment [environment]", "environment");
 
 subcommand.run.option("-c, --count [count]", "count");
 
 subcommand.run.option("--sql", "show sql");
+
+subcommand.run.unknownOption = noOp;
 
 subcommand.run.action(function() {
   var options;

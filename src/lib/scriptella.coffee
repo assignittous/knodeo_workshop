@@ -139,6 +139,11 @@ exports.Scriptella = {
     runGroup: (group, environment)->
       console.log "GROUP: #{group}"
       console.log "ENV: #{environment}"
+
+
+      groupfile = CSON.parseCSONFile("#{cwd}/_src/etl_groups/#{group}.cson")
+
+      console.log groupfile
       # run one
       #filename = utils.checkExtension(shell.arguments.manifest,".cson")    
       #path = "job_manifests/#{filename}"
