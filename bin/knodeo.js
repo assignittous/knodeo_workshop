@@ -61,6 +61,8 @@ subcommand["new"].option("-s, --script [script_name]", "script name");
 
 subcommand["new"].option("-f, --for-database [database-name]", "database name");
 
+subcommand["new"].option("-g, --script-group [script_name]", "script group");
+
 subcommand["new"].option("-r, --using-recipe [recipe_name]", "recipe_name");
 
 subcommand["new"].action(function() {
@@ -89,11 +91,13 @@ subcommand.run.description('Create a new thing');
 
 subcommand.run.option("-m, --migration", "migration");
 
-subcommand.run.option("-m, --rollback", "rollback");
+subcommand.run.option("-r, --rollback", "rollback");
 
 subcommand.run.option("-d, --for-database [database_name]", "database name");
 
 subcommand.run.option("-s, --script [script_name]", "script name");
+
+subcommand["new"].option("-g, --script-group [script_name]", "script group");
 
 subcommand.run.option("-e, --environment [environment]", "environment");
 
@@ -122,6 +126,11 @@ subcommand.run.action(function() {
   if (subcommand.run.script != null) {
     logger.info("Run scriptella script " + subcommand.run.script);
     scriptella.script.run(subcommand.run.script, subcommand.run.environment);
+    return;
+  }
+  if (subcommand.run.scriptGroup != null) {
+    logger.info("Run scriptella script " + subcommand.run.script);
+    scriptella.script.runGroup(subcommand.run.scriptGroup, subcommand.run.environment);
   }
 });
 

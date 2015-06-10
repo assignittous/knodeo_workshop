@@ -136,21 +136,24 @@ exports.Scriptella = {
       @that.command.push  "#{@that.paths.xml}/#{name}.xml"
       @that.execute()
       
-    runGroup: (group)->
+    runGroup: (group, environment)->
+      console.log "GROUP: #{group}"
+      console.log "ENV: #{environment}"
+      # run one
+      #filename = utils.checkExtension(shell.arguments.manifest,".cson")    
+      #path = "job_manifests/#{filename}"
 
-        # run one
-        filename = utils.checkExtension(shell.arguments.manifest,".cson")    
-        path = "job_manifests/#{filename}"
+      #manifest = CSON.parseCSONFile(path)
 
-        manifest = CSON.parseCSONFile(path)
+      ###
+      manifest.jobs.each (path)->
+      
+        if path.endsWith('.xml')
+          logger.info "Run update for scriptella/#{path}"
+          shell.execSync "scriptella scriptella/#{path}"
+        ##
 
-        manifest.jobs.each (path)->
-        
-          if path.endsWith('.xml')
-            logger.info "Run update for scriptella/#{path}"
-            shell.execSync "scriptella scriptella/#{path}"
-
-
+      ###
   
 
   init: ()->
