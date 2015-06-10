@@ -88,4 +88,5 @@ fact = currency_list.map (code)->
 output.toCsv "#{data_dir}/#{datestamp}_rates.csv", fact
 
 logger.slack()
+logger.email()
 
