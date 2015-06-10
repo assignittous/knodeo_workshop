@@ -102,7 +102,7 @@ exports.Scriptella = {
     new: (name, recipe)->
       recipe = recipe || "job"
 
-      console.log "Create new #{name} script using `#{recipe}` as a recipe."
+      logger.info "Create new #{name} script using `#{recipe}` as a recipe."
       # Set the filename if the --name arguments was provided
 
       filename = name || "#{utils.dateSid()}-job"
