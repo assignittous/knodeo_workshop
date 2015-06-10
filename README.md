@@ -46,5 +46,3 @@ you should be good to go.
 ## Detailed Documentation
 
 Visit this repo's wiki. https://github.com/assignittous/knodeo_workshop/wiki
-
-git submodule add https://github.com/assignittous/knodeo_workshop.wiki.git doc
