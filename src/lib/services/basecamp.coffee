@@ -14,16 +14,6 @@ serviceConfig = config.forService thisService
 data_dir = config.dataDirectoryForService thisService 
 
 
-#cwd = process.env.PWD || process.cwd()
-#CSON = require('cson')
-#config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-
-
-#logger = require('../../lib/logger').Logger
-#convert = require('../../lib/convert').Convert
-##fs = require('fs')
-#request = require('sync-request')
-
 
 
 day = Date.create()
