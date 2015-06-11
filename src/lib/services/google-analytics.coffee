@@ -16,6 +16,12 @@ GA = require('googleanalytics')
 google = require('googleapis')
 urlshortener = google.urlshortener('v1')
 
+thisService = "google-analytics"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
+
+console.log serviceConfig
+
 
 ###
 CSON = require('cson')
