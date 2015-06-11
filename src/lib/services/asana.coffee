@@ -1,37 +1,47 @@
 # asana.coffee
 
-
-
 'use strict'
+require('sugar')
 
+config = require("../../lib/configuration").Configuration
 logger = require('../../lib/logger').Logger
+output = require('../../lib/data').Data
+request = require("../../lib/http").Http
 
-convert = require('../../lib/convert').Convert
-fs = require('fs')
-asana = require('asana')
+thisService = "asana"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
 
-cwd = process.env.PWD || process.cwd()
-CSON = require('cson')
 
+
+
+
+
+baseUrl = "https://app.asana.com/api/1.0/"
 
 # todo: redo this with http sync requests
 
+
+headers =
+  "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
+
+
 day = Date.create()
-
-configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-key = configuration.cloud.asana.key
-
-
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 
 
-client = asana.Client.create().useBasicAuth(key)  
+
+workspaces = request "get", "#{baseUrl}/workspaces",
+  headers: headers
+
+console.log workspaces
 
 
-user_workspaces = []
+
+#user_workspaces = []
 
 
-
+###
 workspaces_projects_finished = ()->
   console.log "projects done, start doing tasks"
 workspace_array = []
@@ -58,3 +68,4 @@ client.workspaces.findAll().then (response)->
       return
 
   return workspaces
+###
