@@ -1,22 +1,23 @@
 # freshbooks.coffee
 
 'use strict'
+require('sugar')
 
+config = require("../../lib/configuration").Configuration
 logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
+request = require("../../lib/http").Http
+
+thisService = "freshbooks"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
 
 FreshBooks = require("freshbooks")
-CSON = require('cson')
-
-
-cwd = process.env.PWD || process.cwd()
-configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-data_dir = "#{cwd}/#{configuration.cloud.freshbooks.data_path}"
 
 # Note: Freshbooks doesn't work with Node 0.12 because of the versoin of libxml2 required by the npm
 # http://www.freshbooks.com/developers/authentication
 
-freshbooks = new FreshBooks configuration.cloud.freshbooks.api_url, configuration.cloud.freshbooks.api_token
+freshbooks = new FreshBooks serviceConfig.api_url, serviceConfig.api_token
 
 
 # Some freshbooks attributes are line feed separated values
