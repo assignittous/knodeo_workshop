@@ -1,16 +1,23 @@
 # google_analytics.coffee
 
-
 'use strict'
-
-logger = require('../../lib/logger.coffee').Logger
-shell = require('../../lib/shell.coffee').Shell
-convert = require('../../lib/convert.coffee').Convert
-GA = require('googleanalytics')
-fs = require('fs')
 require('sugar')
 
+config = require("../../lib/configuration").Configuration
+logger = require('../../lib/logger.coffee').Logger
+output = require('../../lib/data').Data
 
+
+convert = require('../../lib/convert.coffee').Convert
+GA = require('googleanalytics')
+
+
+
+google = require('googleapis')
+urlshortener = google.urlshortener('v1')
+
+
+###
 CSON = require('cson')
 configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
@@ -94,3 +101,4 @@ ga.login (err, token) ->
       fs.writeFileSync(targetPath, output)
     return
   return
+###
