@@ -4,107 +4,67 @@
 require('sugar')
 
 config = require("../../lib/configuration").Configuration
-logger = require('../../lib/logger.coffee').Logger
+logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
 
 
-convert = require('../../lib/convert.coffee').Convert
-GA = require('googleanalytics')
-
-
-
 google = require('googleapis')
-urlshortener = google.urlshortener('v1')
 
 thisService = "google-analytics"
 serviceConfig = config.forService thisService
 data_dir = config.dataDirectoryForService thisService 
-
-console.log serviceConfig
-
-
-###
-CSON = require('cson')
-configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-
-# max 7
-dimensions = [
-  "userType"
-  "date"
-  "country"
-  "metro"
-  "fullReferrer"
-  "deviceCategory"
-  "hostname"
-].map (o)->
-  return "ga:" + o
+analytics = google.analytics('v3')
 
 
+# todo
 
+# error check - max dimensions = 7
+# error check - max metrics = 10
 
-# max 10
-metrics = [
-  "users"
-  "newUsers"
-  "sessions"
-  "bounceRate"
-  "avgSessionDuration"
-  "uniquePageviews"
-  "users"
-  "newUsers"
-  "avgTimeOnPage"
-  #"pageLoadTime"
-  #"avgPageLoadTime"
-  #"avgDomContentLoadedTime"
-].map (o)->
-  return "ga:" + o
+jwtClient = new google.auth.JWT(
+  serviceConfig.service_email,
+  serviceConfig.pem_path,
+  null,
+  ['https://www.googleapis.com/auth/analytics.readonly'])
 
-
-
-
-
-config =
-  user: configuration.cloud.google_analytics.user
-  password: configuration.cloud.google_analytics.password
-options = 
-  ids: configuration.cloud.google_analytics.profile
-  'start-date': '2015-01-01'
-  'end-date': '2015-05-25'
-  dimensions: dimensions.join(',')
-  metrics: metrics.join(',')
-  #sort: '-ga:pagePath'
-ga = new GA.GA(config)
-ga.login (err, token) ->
-
-  ga.get options, (err, entries) ->
-    if err?
-      console.log "ERR:"
-      console.log err
-    else
-      output = entries.map (entry)->
-
-        #output = {}
-        item = Object.merge entry.dimensions.first(), entry.metrics.first()
-
-        # rekey
-
-        keys = Object.keys(item)
-        record = {}
-        keys.each (key)->
-          record[key.replace(/ga:/g,'')] = item[key]
-
-
-        return record
-
-
-      output = convert.arrayToCsv(output)
-      console.log output
-      day = Date.create('yesterday')
-
-      datestamp = day.format('{yyyy}-{MM}-{dd}')
-      targetPath = "data/google_analytics/#{datestamp}.csv"
-
-      fs.writeFileSync(targetPath, output)
+jwtClient.authorize (err, tokens)->
+  if err
+    console.log "jwtClient.authorize ERR"
+    console.log err
     return
-  return
-###
+  else
+    options = 
+      auth: jwtClient
+      ids: serviceConfig.profiles
+      'start-date': Date.create(serviceConfig.start_date).format("{yyyy}-{MM}-{dd}")
+      'end-date': Date.create(serviceConfig.end_date).format("{yyyy}-{MM}-{dd}")
+      dimensions: serviceConfig.dimensions.join(',')
+      metrics: serviceConfig.metrics.join(',')
+
+    analytics.data.ga.get  options, (err, response)->
+      if err?
+        console.log err
+      else
+        console.log response
+
+        attributes = response.columnHeaders.map (header)->
+          return header.name.replace(/ga:/g,'')
+
+        #console.log Object.keys(response)
+        
+        data = response.rows.map (entry)->
+          record = {}
+
+          attributes.each (attribute, index)->
+            record[attribute] = entry[index]
+          return record
+        
+
+        day = Date.create('yesterday')
+
+        datestamp = day.format('{yyyy}-{MM}-{dd}')
+
+
+
+        output.toCsv "#{data_dir}/#{datestamp}.csv", data
+      return
