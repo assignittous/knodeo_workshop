@@ -9,12 +9,11 @@ output = require('../../lib/data').Data
 
 
 google = require('googleapis')
+analytics = google.analytics('v3')
 
 thisService = "google-analytics"
 serviceConfig = config.forService thisService
 data_dir = config.dataDirectoryForService thisService 
-analytics = google.analytics('v3')
-
 
 # todo
 
