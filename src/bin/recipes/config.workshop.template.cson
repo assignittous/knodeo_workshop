@@ -84,9 +84,9 @@ cloud:
     data_path: "_data/github"
     output_formats: ["csv","xlsx"]
   google_analytics:
-    user: ""
-    password: ''
-    profile: ''
+    service_email: ""
+    pem_path: ""
+    profile: ""
     datafile_pattern: ""
     data_path: "_data/google-analytics"
     output_formats: ["csv","xlsx"]

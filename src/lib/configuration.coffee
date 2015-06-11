@@ -44,9 +44,9 @@ exports.Configuration = {
     return "#{@cwd()}/#{@current.cloud[service.replace(/-/g,'_')].data_path}"
 
   doSlackForService: (service)->
-    return true
+    return false
 
   doEmailForService: (service)->
-    return true
+    return false
 
 }.init()
