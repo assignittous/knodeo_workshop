@@ -32,6 +32,7 @@ datestamp = day.format('{yyyy}-{MM}-{dd}')
 # start with clients  
 baseUrl = "https://basecamp.com/#{serviceConfig.app_id}/api/v1/"
 basecampRequest = (path)->
+  path = path.replace baseUrl, '' # handle links from objects
   response = request "get", "#{baseUrl}/#{path}",
     headers: 
       "User-Agent": "DataWarehouseETL (#{serviceConfig.email})"
@@ -59,19 +60,13 @@ if projects.length > 0
 
   projects.each (item)->
 
-    url = "https://basecamp.com/2935801/api/v1/projects/#{item.id}.json"
-    res = request "get", url,
-      headers: headers
-
-    project = dataize(res)
+    project = basecampRequest "projects/#{item.id}.json"
 
     # todo - for the children, add creator info
     # attachments
 
-    res = request "get", project.attachments.url,
-      headers: headers
 
-    attachments =  dataize(res)
+    attachments =  baecampRequest project.attachments.url
     attachments.each (attachment)->
       attachment_stub = { project_id: project.id }
       project_attachments.push Object.merge(attachment_stub, Object.select(attachment, [
@@ -87,10 +82,7 @@ if projects.length > 0
         "thumbnail_url"
       ]))
 
-    res = request "get", project.calendar_events.url,
-      headers: headers
-
-    calendars =  dataize(res)
+    calendars = basecampRequest project.calendar_events.url
     calendars.each (calendar)->
       calendar_stub = { project_id: project.id }
 
@@ -124,10 +116,8 @@ if projects.length > 0
 
 
 
-    res = request "get", project.documents.url,
-      headers: headers
 
-    documents =  dataize(res)
+    documents =  basecampRequest project.documents.url
 
     documents.each (document)->
       document_stub = { project_id: project.id }
@@ -153,10 +143,9 @@ if projects.length > 0
         "app_url"
       ]))
 
-    res = request "get", project.topics.url,
-      headers: headers
 
-    topics =  dataize(res)
+
+    topics =  basecampRequest project.topics.url
 
     topics.each (topic)->
       topic_stub = { project_id: project.id }
@@ -182,10 +171,8 @@ if projects.length > 0
         "attachments"
       ]))
 
-    res = request "get", project.todolists.url,
-      headers: headers
 
-    todolists =  dataize(res)
+    todolists =  basecampRequest project.todolists.url
 
     todolists.each (todolist)->
       todolist_stub = { project_id: project.id }
@@ -223,34 +210,29 @@ if projects.length > 0
 
 
   if project_attachments.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_project_attachments.csv", convert.arrayToCsv(project_attachments))  
+    output.toCsv "#{data_dir}/#{datestamp}_project_attachments.csv", project_attachments
   if project_calendars.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_project_calendars.csv", convert.arrayToCsv(project_calendars))  
+    output.toCsv "#{data_dir}/#{datestamp}_project_calendars.csv", project_calendars
   if project_documents.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_project_documents.csv", convert.arrayToCsv(project_documents))  
+    output.toCsv "#{data_dir}/#{datestamp}_project_documents.csv", project_documents
   if project_topics.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_project_topics.csv", convert.arrayToCsv(project_topics))  
+    output.toCsv "#{data_dir}/#{datestamp}_project_topics.csv", project_topics
   if project_todolists.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_project_todolists.csv", convert.arrayToCsv(project_todolists))  
+    output.toCsv "#{data_dir}/#{datestamp}_project_todolists.csv", project_todolists
 
 
-res = request "get", "https://basecamp.com/2935801/api/v1/people.json",
-  headers: headers
 
-people = dataize(res)
+people = basecampRequest "people.json"
 
 if people.length > 0
-  fs.writeFileSync("#{data_dir}/#{datestamp}_people.csv", convert.arrayToCsv(people, serviceConfig.attributes.people))     
+  output.toCsv "#{data_dir}/#{datestamp}_people.csv", people, serviceConfig.attributes.people
   people_events = []
   people_todos = []
 
 
   people.each (item)->
 
-    res = request "get", "https://basecamp.com/2935801/api/v1/people/#{item.id}.json",
-      headers: headers
-
-    person = dataize(res)
+    person = basecampRequest "people/#{item.id}.json"
 
     # events
     ###
@@ -332,9 +314,9 @@ if people.length > 0
   ###
 
   if people_events.length > 0
-    fs.writeFileSync("#{data_dir}/#{datestamp}_people_events.csv", convert.arrayToCsv(people_events))  
+    output.toCsv "#{data_dir}/#{datestamp}_people_events.csv", people_events
   #if people_todos.length > 0
-  #  fs.writeFileSync("#{data_dir}/#{datestamp}_people_todos.csv", convert.arrayToCsv(people_todos))  
+  #  output.toCsv "#{data_dir}/#{datestamp}_people_todos.csv", people_todos
 
 
 
