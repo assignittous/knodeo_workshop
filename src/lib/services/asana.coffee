@@ -15,10 +15,18 @@ data_dir = config.dataDirectoryForService thisService
 
 baseUrl = "https://app.asana.com/api/1.0"
 
-asanaRequest = (url)->
+asanaRequest = (path, params)->
 
+  # todo - recurse for paging as required
+  morePages = true
+  outputData = []
 
-  req = request.get url, 
+  options =
+    limit: 100
+
+  # do a while more loop here
+
+  req = request.get "#{baseUrl}/#{path}?#{Object.toQueryString(options)}", 
     headers:
       "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
   return JSON.parse(req).data
@@ -44,7 +52,7 @@ output.toCsv "#{data_dir}/#{datestamp}_workspaces.csv", workspaces
 
 ###
 
-projects = asanaRequest "#{baseUrl}/projects"
+projects = asanaRequest "projects"
 
 output.toCsv "#{data_dir}/#{datestamp}_projects.csv", projects
 
@@ -52,7 +60,7 @@ projects_file = []
 
 projects.each (project)->
   console.log "project: #{project.name}"
-  projectUrl = "#{baseUrl}/projects/#{project.id}"
+  projectUrl = "projects/#{project.id}"
   data = asanaRequest projectUrl
   console.log data
 
@@ -62,7 +70,7 @@ projects.each (project)->
 
   # get tasks
   # add field parameter to get everything
-  taskUrl = "#{baseUrl}/projects/#{project.id}/tasks"
+  taskUrl = "projects/#{project.id}/tasks"
   tasks = asanaRequest taskUrl
 
   #tasks.each (task)->
@@ -79,8 +87,3 @@ projects.each (project)->
 # users
 
 ###
-# This has questionable value
-workspaces.each (workspace)->
-  workspaceUrl = "#{baseUrl}/workspaces/#{workspace.id}"
-  data = asanaRequest workspaceUrl
-  console.log data
