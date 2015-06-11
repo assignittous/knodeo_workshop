@@ -64,7 +64,5 @@ jwtClient.authorize (err, tokens)->
 
         datestamp = day.format('{yyyy}-{MM}-{dd}')
 
-
-
         output.toCsv "#{data_dir}/#{datestamp}.csv", data
       return
