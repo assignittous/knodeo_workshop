@@ -38,6 +38,7 @@ exports.Init =
       "./_workshop/liquibase"
       "./_workshop/logs"
       "./_workshop/recipes"
+      "./_workshop/pem"  
       "./_workshop/temp"  
       "./_data"
       "./_src"
