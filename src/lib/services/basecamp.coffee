@@ -1,17 +1,28 @@
 # basecamp.coffee
 
 'use strict'
+require('sugar')
 
 
-cwd = process.env.PWD || process.cwd()
-CSON = require('cson')
-config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-
-
+config = require("../../lib/configuration").Configuration
 logger = require('../../lib/logger').Logger
-convert = require('../../lib/convert').Convert
-fs = require('fs')
-request = require('sync-request')
+output = require('../../lib/data').Data
+request = require("../../lib/http").Http
+
+thisService = "basecamp"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
+
+
+#cwd = process.env.PWD || process.cwd()
+#CSON = require('cson')
+#config = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+
+
+#logger = require('../../lib/logger').Logger
+#convert = require('../../lib/convert').Convert
+##fs = require('fs')
+#request = require('sync-request')
 
 
 
@@ -19,41 +30,10 @@ day = Date.create()
 
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 # start with clients  
-attributes = 
-  projects: [
-    "id"
-    "name"
-    "description"
-    "archived"
-    "is_client_project"
-    "created_at"
-    "updated_at"
-    "trashed"
-    "color"
-    "draft"
-    "template"
-    "last_event_at"
-    "starred"
-    "url"
-    "app_url"
-  ]
-  people: [
-    "id"
-    "identity_id"
-    "name"
-    "email_address"
-    "admin"
-    "trashed"
-    "avatar_url"
-    "fullsize_avatar_url"
-    "created_at"
-    "updated_at"
-    "url"
-    "app_url"
-  ]
 
+basecampRequest = ()->
 
-data_dir = "#{cwd}/#{config.cloud.basecamp.data_path}"
+  
 
 dataize = (response)->
   body = response.body.toString('utf8')
@@ -84,7 +64,7 @@ project_todolists = []
 
 
 if projects.length > 0
-  fs.writeFileSync("#{data_dir}/#{datestamp}_projects.csv", convert.arrayToCsv(projects, attributes.projects))     
+  fs.writeFileSync("#{data_dir}/#{datestamp}_projects.csv", convert.arrayToCsv(projects, serviceConfig.attributes.projects))     
 
   projects.each (item)->
 
@@ -269,7 +249,7 @@ res = request "get", "https://basecamp.com/2935801/api/v1/people.json",
 people = dataize(res)
 
 if people.length > 0
-  fs.writeFileSync("#{data_dir}/#{datestamp}_people.csv", convert.arrayToCsv(people, attributes.people))     
+  fs.writeFileSync("#{data_dir}/#{datestamp}_people.csv", convert.arrayToCsv(people, serviceConfig.attributes.people))     
   people_events = []
   people_todos = []
 
