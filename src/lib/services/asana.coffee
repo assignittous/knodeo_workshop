@@ -17,24 +17,32 @@ data_dir = config.dataDirectoryForService thisService
 
 
 
-baseUrl = "https://app.asana.com/api/1.0/"
+baseUrl = "https://app.asana.com/api/1.0"
 
 # todo: redo this with http sync requests
 
-
-headers =
-  "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
+options = 
+  headers:
+    "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
 
 
 day = Date.create()
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 
 
+console.log "#{baseUrl}/workspaces"
 
-workspaces = request "get", "#{baseUrl}/workspaces",
-  headers: headers
+workspaces = request.get "#{baseUrl}/workspaces", options
 
-console.log workspaces
+
+output.toCsv "#{data_dir}/#{datestamp}_workspaces.csv", workspaces.data.workspaces
+
+workspaces.data.workspaces.each (workspace)->
+  workspaceUrl = "${baseUrl}/workspaces/#{workspace.id}"
+  data = request.get workspaceUrl, options
+  console.log data
+
+#console.log workspaces
 
 
 
