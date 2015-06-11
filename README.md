@@ -1,6 +1,6 @@
 # Knodeo Workshop
 
-Database and data management command-line tools for Knodeo, a suite of business intelligence products made by (Assign It To Us)[http://assignittous.com].
+Database and data management command-line tools for Knodeo, a suite of business intelligence products made by [Assign It To Us](http://assignittous.com).
 
 ##tldr##
 
