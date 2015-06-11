@@ -7,24 +7,24 @@ Fogbugz uses an XML API, which means it needs some special handling compared to 
 ###
 
 'use strict'
-
-
-
-
-# 
-logger = require('../../lib/logger').Logger
-request = require('../../lib/http').Http
 require "sugar"
-convert = require('../../lib/convert').Convert
-fs = require('fs')
-cwd = process.env.PWD || process.cwd()
-CSON = require('cson')
-configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-config = configuration.cloud.fogbugz
+
+config = require("../../lib/configuration").Configuration
+logger = require('../../lib/logger').Logger
 output = require('../../lib/data').Data
+request = require("../../lib/http").Http
 
 xmlParse = require('xml2js').parseString
-request = require("../../lib/http").Http
+
+
+thisService = "fogbugz"
+serviceConfig = config.forService thisService
+data_dir = config.dataDirectoryForService thisService 
+
+
+
+
+
 
 
 # current version requires credentials written to cwd containing fogbugz credentials
@@ -41,7 +41,7 @@ request = require("../../lib/http").Http
 ###
 #console.log config
 
-baseUrl = "https://#{config.host}/api.asp?"
+baseUrl = "https://#{serviceConfig.host}/api.asp?"
 token = ""
 
 
@@ -101,7 +101,7 @@ attributes =
     "dtLastOccurrence"
   ]
 
-loginAttempt = request.get "#{baseUrl}cmd=logon&email=#{config.username}&password=#{config.password}"
+loginAttempt = request.get "#{baseUrl}cmd=logon&email=#{serviceConfig.username}&password=#{serviceConfig.password}"
 
 xmlParse loginAttempt, (err, data)->
   if err?
@@ -114,7 +114,7 @@ xmlParse loginAttempt, (err, data)->
     else
       if response.token?
         token = response.token.first()
-        logger.info "Logged in to Fogbugz as #{config.username}"
+        logger.info "Logged in to Fogbugz as #{serviceConfig.username}"
         logger.info "Token #{token}"
 
         baseUrl += "token=#{token}"
@@ -126,7 +126,7 @@ xmlParse loginAttempt, (err, data)->
         # projectsXml = 
         logger.info "Getting projects list"
         console.log "#{baseUrl}&cmd=listProjects&fIncludeDeleted=1"
-        output.toRaw "#{config.data_path}/projects.xml", request.get("#{baseUrl}&cmd=listProjects&fIncludeDeleted=1")
+        output.toRaw "#{data_dir}/projects.xml", request.get("#{baseUrl}&cmd=listProjects&fIncludeDeleted=1")
 
 
 
@@ -134,9 +134,9 @@ xmlParse loginAttempt, (err, data)->
         console.log "#{baseUrl}&cmd=listFilters"
         # List filters
         filtersXml = request.get("#{baseUrl}&cmd=listFilters")
-        output.toRaw "#{config.data_path}/filters.xml", filtersXml 
+        output.toRaw "#{data_dir}/filters.xml", filtersXml 
 
-        # hunt for config.filter's id
+        # hunt for serviceConfig.filter's id
 
         xmlParse filtersXml, (err, obj)->
           if err?
@@ -153,14 +153,14 @@ xmlParse loginAttempt, (err, data)->
               filters.map (filter)->
                 found[filter._] = filter.$.sFilter
 
-              if Object.keys(found).any config.filter
+              if Object.keys(found).any serviceConfig.filter
 
-                logger.info "Filter: #{config.filter} Id is #{found[config.filter]}"
-                request.get("#{baseUrl}&cmd=setCurrentFilter&sFilter=#{found[config.filter]}")
-                output.toRaw "#{config.data_path}/cases.xml", request.get("#{baseUrl}&cmd=search&cols=#{attributes.cases.join(',')}") 
+                logger.info "Filter: #{serviceConfig.filter} Id is #{found[serviceConfig.filter]}"
+                request.get("#{baseUrl}&cmd=setCurrentFilter&sFilter=#{found[serviceConfig.filter]}")
+                output.toRaw "#{data_dir}/cases.xml", request.get("#{baseUrl}&cmd=search&cols=#{attributes.cases.join(',')}") 
 
               else
-                logger.warn "Filter named #{config.filter} in config file not found. Skipping case extraction."
+                logger.warn "Filter named #{serviceConfig.filter} in config file not found. Skipping case extraction."
 
 
 
@@ -174,47 +174,47 @@ xmlParse loginAttempt, (err, data)->
 
         logger.info "Getting areas"
         # List nondeleted areas
-        output.toRaw "#{config.data_path}/areas.xml", request.get(fogbugzUrl({cmd: "listAreas"}) )
+        output.toRaw "#{data_dir}/areas.xml", request.get(fogbugzUrl({cmd: "listAreas"}) )
 
         logger.info "Getting categories"
         # List categories
-        output.toRaw "#{config.data_path}/categories.xml", request.get("#{baseUrl}&cmd=listCategories")
+        output.toRaw "#{data_dir}/categories.xml", request.get("#{baseUrl}&cmd=listCategories")
 
         # This appears to be useless, even when loggin in as the account owner, doesn't produce any recrods
         logger.info "Getting people"
         # List nondeleted areas
-        output.toRaw "#{config.data_path}/people.xml", request.get("#{baseUrl}&cmd=listPeople&fIncludeDeleted=1&fIncludeCommunity=1&fIncludeVirtual=1")
+        output.toRaw "#{data_dir}/people.xml", request.get("#{baseUrl}&cmd=listPeople&fIncludeDeleted=1&fIncludeCommunity=1&fIncludeVirtual=1")
 
         logger.info "Getting categories"
         # List statuses
-        output.toRaw "#{config.data_path}/categories.xml", request.get("#{baseUrl}&cmd=listStatuses")        
+        output.toRaw "#{data_dir}/categories.xml", request.get("#{baseUrl}&cmd=listStatuses")        
 
         logger.info "Getting fix fors"
         # List fixfors
-        output.toRaw "#{config.data_path}/fixfors.xml", request.get("#{baseUrl}&cmd=listFixFors&fIncludeDeleted=1&fIncludeReallyDeleted=1")       
+        output.toRaw "#{data_dir}/fixfors.xml", request.get("#{baseUrl}&cmd=listFixFors&fIncludeDeleted=1&fIncludeReallyDeleted=1")       
 
         logger.info "Getting statuses"
         # List statuses
-        output.toRaw "#{config.data_path}/statuses.xml", request.get("#{baseUrl}&cmd=listStatuses")        
+        output.toRaw "#{data_dir}/statuses.xml", request.get("#{baseUrl}&cmd=listStatuses")        
 
         logger.info "Getting mailboxes"
         # List mailboxes
-        output.toRaw "#{config.data_path}/mailboxes.xml", request.get("#{baseUrl}&cmd=listMailboxes")        
+        output.toRaw "#{data_dir}/mailboxes.xml", request.get("#{baseUrl}&cmd=listMailboxes")        
 
 
         logger.info "Getting wikis"
 
         # List wikis
-        output.toRaw "#{config.data_path}/wikis.xml", request.get("#{baseUrl}&cmd=listWikis")        
+        output.toRaw "#{data_dir}/wikis.xml", request.get("#{baseUrl}&cmd=listWikis")        
 
         logger.info "Getting snippets"
         # List snipets
-        output.toRaw "#{config.data_path}/snippets.xml", request.get("#{baseUrl}&cmd=listSnippets")        
+        output.toRaw "#{data_dir}/snippets.xml", request.get("#{baseUrl}&cmd=listSnippets")        
 
 
         # logoff token:
 
-        logoutXml = request.get "http://#{config.host}/api.asp?cmd=logoff&token=#{token}"
+        logoutXml = request.get "http://#{serviceConfig.host}/api.asp?cmd=logoff&token=#{token}"
         # should yield an empty response
         logger.info "Logged out of Fogbugz"
         # 
