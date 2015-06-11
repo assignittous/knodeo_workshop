@@ -13,17 +13,21 @@ serviceConfig = config.forService thisService
 data_dir = config.dataDirectoryForService thisService 
 
 
-
-
-
-
 baseUrl = "https://app.asana.com/api/1.0"
+
+asanaRequest = (url)->
+
+
+  req = request.get url, 
+    headers:
+      "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
+  return JSON.parse(req).data
+
+
 
 # todo: redo this with http sync requests
 
-options = 
-  headers:
-    "Authorization" : "Basic #{new Buffer("#{serviceConfig.key}:").toString('base64')}"
+
 
 
 day = Date.create()
@@ -32,15 +36,56 @@ datestamp = day.format('{yyyy}-{MM}-{dd}')
 
 console.log "#{baseUrl}/workspaces"
 
-workspaces = request.get "#{baseUrl}/workspaces", options
+###
 
+workspaces = asanaRequest "#{baseUrl}/workspaces"
 
-output.toCsv "#{data_dir}/#{datestamp}_workspaces.csv", workspaces.data.workspaces
+output.toCsv "#{data_dir}/#{datestamp}_workspaces.csv", workspaces
 
-workspaces.data.workspaces.each (workspace)->
-  workspaceUrl = "${baseUrl}/workspaces/#{workspace.id}"
-  data = request.get workspaceUrl, options
+###
+
+projects = asanaRequest "#{baseUrl}/projects"
+
+output.toCsv "#{data_dir}/#{datestamp}_projects.csv", projects
+
+projects_file = []
+
+projects.each (project)->
+  console.log "project: #{project.name}"
+  projectUrl = "#{baseUrl}/projects/#{project.id}"
+  data = asanaRequest projectUrl
   console.log data
+
+  # todo -t ransform the projects before writing them
+
+
+
+  # get tasks
+  # add field parameter to get everything
+  taskUrl = "#{baseUrl}/projects/#{project.id}/tasks"
+  tasks = asanaRequest taskUrl
+
+  tasks.each (task)->
+    console.log task
+
+    # attachments
+    
+  # stories
+
+
+# tags
+
+
+# users
+
+###
+# This has questionable value
+workspaces.each (workspace)->
+  workspaceUrl = "#{baseUrl}/workspaces/#{workspace.id}"
+  data = asanaRequest workspaceUrl
+  console.log data
+###
+
 
 #console.log workspaces
 
