@@ -30,26 +30,17 @@ day = Date.create()
 
 datestamp = day.format('{yyyy}-{MM}-{dd}')
 # start with clients  
-
-basecampRequest = ()->
-
-  
-
-dataize = (response)->
+baseUrl = "https://basecamp.com/#{serviceConfig.app_id}/api/v1/"
+basecampRequest = (path)->
+  response = request "get", "#{baseUrl}/#{path}",
+    headers: 
+      "User-Agent": "DataWarehouseETL (#{serviceConfig.email})"
+      "Authorization" : "Basic #{new Buffer("#{serviceConfig.email}:#{serviceConfig.password}").toString('base64')}"      
   body = response.body.toString('utf8')
-  obj = JSON.parse(body)
-  console.log JSON.stringify(obj,null,' ')
-  return obj
+  return JSON.parse(body)
 
 
-headers =
-  "User-Agent": "DataWarehouseETL (#{config.cloud.basecamp.email})"
-  "Authorization" : "Basic #{new Buffer("#{config.cloud.basecamp.email}:#{config.cloud.basecamp.password}").toString('base64')}"
-
-res = request "get", "https://basecamp.com/2935801/api/v1/projects.json",
-  headers: headers
-
-projects = dataize(res)
+projects = basecampRequest "projects.json"
 
 
 
@@ -64,7 +55,7 @@ project_todolists = []
 
 
 if projects.length > 0
-  fs.writeFileSync("#{data_dir}/#{datestamp}_projects.csv", convert.arrayToCsv(projects, serviceConfig.attributes.projects))     
+  output.toCsv "#{data_dir}/#{datestamp}_projects.csv", projects, serviceConfig.attributes.projects
 
   projects.each (item)->
 
