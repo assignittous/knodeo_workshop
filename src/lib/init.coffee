@@ -2,7 +2,7 @@
 
 # Initializes a working folder for use with Knodeo Workshop.
 
-logger = require('../lib/logger').Logger
+logger = require('aitutils').aitutils.logger
 
 gulp   = require('gulp')
 

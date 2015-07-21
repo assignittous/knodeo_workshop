@@ -9,7 +9,7 @@ conversion functions
 require 'sugar'
 fs = require('fs')
 
-logger = require('../lib/logger.js').Logger
+logger = require('aitutils').aitutils.logger
 CSON = require('cson')
 
 exports.Convert = 

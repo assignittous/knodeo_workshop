@@ -5,14 +5,18 @@
 This library is a wrapper for running scriptella.
 
 ###
-logger = require('../lib/logger').Logger
+aitutils = require("aitutils").aitutils
+logger = aitutils.logger
+file = aitutils.file
+general = aitutils.general
+
+
 shell = require('shelljs')
 fs = require('fs-extra')
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
 jade = require('jade')
 
-utils = require('../lib/utilities').Utilities
 
 exports.Scriptella = {
   command: ['scriptella']
@@ -105,10 +109,10 @@ exports.Scriptella = {
       logger.info "Create new #{name} script using `#{recipe}` as a recipe."
       # Set the filename if the --name arguments was provided
 
-      filename = name || "#{utils.dateSid()}-job"
+      filename = name || "#{general.dateSid()}-job"
       recipePath = @that.paths.recipes
 
-      recipe = utils.checkExtension(recipe, '.jade')
+      recipe = file.checkExtension(recipe, '.jade')
       
 
       source = "#{recipePath}/#{recipe}"

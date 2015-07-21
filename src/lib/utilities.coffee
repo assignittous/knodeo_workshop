@@ -8,7 +8,7 @@ Utility functions
 
 require 'sugar'
 fs = require('fs')
-logger = require('../lib/logger.js').Logger
+logger = require('aitutils').aitutils.logger
 exports.Utilities = 
 
   # Produce a date sid

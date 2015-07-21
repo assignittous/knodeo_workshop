@@ -2,7 +2,7 @@
 
 
 Excel = require('exceljs')
-logger = require('../lib/logger').Logger
+logger = require('aitutils').aitutils.logger
 config = require("../lib/configuration").Configuration
 
 exports.Xlsx =

@@ -6,15 +6,19 @@ This library is a wrapper for running scriptella.
 
 ###
 
+aitutils = require("aitutils").aitutils
+logger = aitutils.logger
+file = aitutils.file
+general = aitutils.general
 
-logger = require('../lib/logger').Logger
+
 shell = require('shelljs')
 fs = require('fs')
 CSON = require('cson')
 jade = require('jade')
 cwd = process.env.PWD || process.cwd()
 
-utils = require('../lib/utilities').Utilities
+
 exports.Liquibase = {
   command: ["liquibase"]
 
@@ -99,7 +103,7 @@ exports.Liquibase = {
 
 
 
-      recipe = utils.checkExtension(recipe, '.jade')
+      recipe = file.checkExtension(recipe, '.jade')
 
 
       fs.open modelPath, 'r', (err)->
@@ -115,7 +119,7 @@ exports.Liquibase = {
               return
             else
               logger.info "Using recipe: #{recipePath}/#{recipe}"
-              sid = utils.dateSid()
+              sid = general.dateSid()
               data = "\n" + data
               data = data.replace /#{author}/g, process.env['USER'] || process.env['USERNAME']
               data = data.replace /#{sid}/g, "sid#{sid}"
@@ -216,12 +220,12 @@ exports.Liquibase = {
       if name?
         filename = name
       else
-        filename = "#{utils.dateSid()}-data-model"
+        filename = "#{general.dateSid()}-data-model"
 
       path = "_src/database_models/#{filename}.jade"
 
       if recipe?
-        recipe = utils.checkExtension(recipe, '.jade')
+        recipe = file.checkExtension(recipe, '.jade')
       else
         recipe = "default.jade"
 
@@ -235,7 +239,7 @@ exports.Liquibase = {
             else
               logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
               data = data.replace /#{table_name}/g, "tablename"
-              data = data.replace /#{id}/g, utils.dateSid()
+              data = data.replace /#{id}/g, general.dateSid()
               data = data.replace /#{db_user_name}/g, "db_user_name"
               data = data.replace /#{db_user_name}/g, "author"
               console.log data

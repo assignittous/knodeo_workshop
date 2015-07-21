@@ -8,7 +8,7 @@ Utility functions for outputting cloud data to files
 
 
 fs = require('fs-extra')
-logger = require('../lib/logger').Logger
+logger = require('aitutils').aitutils.logger
 convert = require('../lib/convert').Convert
 nodePath = require 'path'
 pd = require('pretty-data').pd
