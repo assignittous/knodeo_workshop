@@ -2,13 +2,13 @@ require 'sugar'
 
 
 # Get listing of valid cloud services
-services = require "../bin/services.json"
-pkg = require('../package.json')
+services = require "./services.json"
+pkg = require('./package.json')
 program = require('commander')
-liquibase = require("../lib/liquibase").Liquibase
-scriptella = require("../lib/scriptella").Scriptella
-init = require("../lib/init").Init
-logger = require('../lib/logger').Logger
+liquibase = require("./lib/liquibase").Liquibase
+scriptella = require("./lib/scriptella").Scriptella
+init = require("./lib/init").Init
+logger = require('aitutils').aitutils.logger
 
 noOp = ()-> 
   console.log "Nothing ran, couldn't understand your command"
@@ -185,20 +185,3 @@ subcommand.migrationStatus.action ()->
 # Scriptella-Specific Commands
 
 result = program.parse(process.argv)
-
-###
-Object.keys(result).each (key) ->
-  if !['commands', 'options'].any(key)
-    console.log ""
-    console.log "KEY: " + key
-    console.log ""
-
-    console.log result[key]
-###
-#console.log "\n\n\n\n\n\n"
-#console.log result
-###
-if result.args?
-  if result.args.length == 0
-    require('../lib/about')
-###
