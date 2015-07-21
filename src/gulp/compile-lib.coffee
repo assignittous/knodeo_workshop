@@ -16,8 +16,8 @@ plumber = require "gulp-plumber"
 # paths
 
 libPath = ["./lib/**/*.*"]
-sourcePath = ["./src/lib/**/*.coffee"]
-targetPath = "./lib"
+sourcePath = ["./src/**/*.coffee", "!./src/cli.coffee", "!./src/gulp/*.coffee"]
+targetPath = "./"
 
 module.exports = ()->
   del.sync libPath

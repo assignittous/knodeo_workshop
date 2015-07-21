@@ -17,13 +17,13 @@ cson = require "gulp-cson"
 # paths
 
 binPath = ["./bin/**/*.*"]
-watchPath = ["./src/bin/**/*.coffee","./src/bin/**/*.cson", "./src/bin**/*.jade"]
+watchPath = ["./src/cli.coffee","./src/bin/**/*.cson", "./src/bin**/*.jade"]
 sourcePath = ["./src/bin/**/*.coffee", "!./src/bin/knodeo.coffee", "!./src/bin/recipes/**/*"]
 csonPath = ["./src/bin/**/*.cson", "!./src/bin/**/*.template.cson"]
 recipePath = ["./src/bin/recipes/**/*", "!./src/bin/recipes/**/*.gitkeep"]
 
 
-targetPath = "./bin"
+targetPath = "./"
 
 module.exports = ()->
 
