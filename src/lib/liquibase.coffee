@@ -2,7 +2,7 @@
 
 # Liquibase
 
-This library is a wrapper for running scriptella.
+This library is a wrapper for running Liquibase.
 
 ###
 
@@ -10,43 +10,21 @@ aitutils = require("aitutils").aitutils
 logger = aitutils.logger
 file = aitutils.file
 general = aitutils.general
+xml = aitutils.xml
+
+liquibase = require("knodeo-liquibase").Liquibase
 
 
-shell = require('shelljs')
 fs = require('fs')
+
 CSON = require('cson')
-jade = require('jade')
+
 cwd = process.env.PWD || process.cwd()
 
 
 exports.Liquibase = {
-  command: ["liquibase"]
 
 
-  execute: (async)->
-
-    showOutput = true
-
-    #try
-    logger.exec @command.join(' ')
-      #if !test?
-    cmdoutput = shell.exec(@command.join(' '), {encoding: "utf8", silent: false, async: async || false})
-
-    if cmdoutput.stdout?
-      cmdoutput.stdout.on 'data', (data)->
-        console.log data
-    #catch e
-    #  logger.error "An error occurred, check the command"
-    #  console.log e
-    #  showOutput = false
-    #finally
-    #  if showOutput
-    #    #console.log "-------"
-    #    console.log cmdoutput.output
-    #    if next?
-    #      next()
-
-  
   setOptions: (database, environment, changelogOverride)->
     configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
     
@@ -67,245 +45,218 @@ exports.Liquibase = {
 
     cwd = process.env.PWD || process.cwd()
 
-    @command.push "--driver=#{driver.class}"
-    @command.push "--classpath=\"#{driver.classPath.replace(/{{cwd}}/g,cwd)}\""
-    @command.push "--url=#{driver.baseUrl}#{conn[environment].host}:#{conn[environment].port}/#{conn[environment].database}"
-    @command.push "--username=#{conn[environment].user}"
-    @command.push "--password=#{conn[environment].password}"
-    @command.push "--changeLogFile=_workshop/liquibase/#{changelog}.xml"
+    return {
+      driver: driver.class
+      classpath: "#{driver.classPath.replace(/{{cwd}}/g,cwd)}"
+      url: "#{driver.baseUrl}#{conn[environment].host}:#{conn[environment].port}/#{conn[environment].database}"
+      username: conn[environment].user
+      password: conn[environment].password
+      changeLogFile: "_workshop/liquibase/#{changelog}.xml"
+    }
 
 
 
-  migration:
-    new: (migration, database, recipe)->
 
-      recipePath = "_workshop/recipes/liquibase/changesets/"
+  migration: (migration, database, recipe)->
+
+    recipePath = "_workshop/recipes/liquibase/changesets/"
 
 
-      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-      # todo - compile the jade file to xml before running
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
 
-      # todo - add error trap to make sure jade file exists
+    # todo - add error trap to make sure jade file exists
+  
+    database = database || configuration.defaults.database
+    logger.info "New migration for database named #{database} with #{recipe} recipe"
+
+    recipe = recipe || "create-table"
+
+    if !recipe?
+      recipe = "changeset"
+
+
+
+
+
+    modelPath = "_src/database_models/#{database}.jade"
+
+
+
+    recipe = file.checkExtension(recipe, '.jade')
+
+
+    fs.open modelPath, 'r', (err)->
+      if err 
+        logger.error "#{modelPath} does not exist."
+      else
+        
+
+        # file doesn't exist, ok to create
+        fs.readFile "#{recipePath}/#{recipe}", { encoding: 'utf8' }, (err, data)->
+          if err
+            logger.error "#{recipePath}/#{recipe} does not exist"
+            return
+          else
+            logger.info "Using recipe: #{recipePath}/#{recipe}"
+            sid = general.dateSid()
+            data = "\n" + data
+            data = data.replace /#{author}/g, process.env['USER'] || process.env['USERNAME']
+            data = data.replace /#{sid}/g, "sid#{sid}"
+            console.log data
+            fs.appendFile modelPath, data, (err)->
+              if err
+                logger.error "Error writing #{modelPath}"
+                return
+              else
+                logger.info "Wrote #{modelPath}"
+
+
+
+
+
+  status: (database)->
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.status()
+
+  migrate: (database, environment, options)->
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+    # todo - compile the jade file to xml before running
+
+    # todo - add error trap to make sure jade file exists
+  
+    environment = environment || configuration.defaults.environment
+    database = database || configuration.defaults.database
+    logger.info "Run migration for database named #{database} in #{environment} environment"
     
-      database = database || configuration.defaults.database
-      logger.info "New migration for database named #{database} with #{recipe} recipe"
-
-      recipe = recipe || "create-table"
-
-      if !recipe?
-        recipe = "changeset"
 
 
+    # synchronously compile the jade file before running
+    sourcePath = "_src/database_models/#{database}.jade"
+    outputPath = "_workshop/liquibase/#{database}.xml"
+    file.save outputPath, xml.fromJadeFile(sourcePath)
 
+    # default
+    command = "update"
 
-
-      modelPath = "_src/database_models/#{database}.jade"
-
-
-
-      recipe = file.checkExtension(recipe, '.jade')
-
-
-      fs.open modelPath, 'r', (err)->
-        if err 
-          logger.error "#{modelPath} does not exist."
-        else
+    if options.count?
+      if typeof(options.count) == 'number'
+        command = "updateCount"
+    if options.sql?
+      if options.sql
+        command = "updateSQL"
+        if options.count?
+          command = "updateCountSQL"
           
-
-          # file doesn't exist, ok to create
-          fs.readFile "#{recipePath}/#{recipe}", { encoding: 'utf8' }, (err, data)->
-            if err
-              logger.error "#{recipePath}/#{recipe} does not exist"
-              return
-            else
-              logger.info "Using recipe: #{recipePath}/#{recipe}"
-              sid = general.dateSid()
-              data = "\n" + data
-              data = data.replace /#{author}/g, process.env['USER'] || process.env['USERNAME']
-              data = data.replace /#{sid}/g, "sid#{sid}"
-              console.log data
-              fs.appendFile modelPath, data, (err)->
-                if err
-                  logger.error "Error writing #{modelPath}"
-                  return
-                else
-                  logger.info "Wrote #{modelPath}"
-
-
-
-
-
-
-
-
-
-
-
-      
-      #@that.execute()
-
-    status: (database)->
-      command = "status"
-      @that.setOptions(database)
-      @that.command.push command      
-      @that.execute(true)
-
-    run: (database, environment, options)->
-      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-      # todo - compile the jade file to xml before running
-
-      # todo - add error trap to make sure jade file exists
+    liquibase.resetRunOptions @setOptions(database)
     
-      environment = environment || configuration.defaults.environment
-      database = database || configuration.defaults.database
-      logger.info "Run migration for database named #{database} in #{environment} environment"
-      
-      @that.database.compile(database)
-      logger.info "Was that synchronous? Compile should have been done."
-
-
-
-      command = "update"
-      commandParameter = ""
-
-      if options.count?
-        if typeof(options.count) == 'number'
-          command = "updateCount"
-          commandParameter = options.count
-        else
-          options.count = null
-      if options.sql?
-        if options.sql
-          command = "updateSQL"
-          if options.count?
-            command = "updateCountSQL"
-            
-
-      @that.setOptions(database)
-      @that.command.push command      
-      if commandParameter.length > 0
-        @that.command.push commandParameter
-      #logger.todo "EXECUTE the migration using liquibase"
-      @that.execute(true)
-
-
-
-    rollback: (database, environment, options)->
-      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-      database = database || configuration.defaults.database
-      logger.info "Roll back migration"
-      command = "rollback"
-      @that.setOptions(database, environment)
-      @that.command.push command
-      @that.execute(true)
-
-
-  database:
-
-    # Compile the database model's jade file into XML
-
-    compile: (name)->
-      sourcePath = "_src/database_models/#{name}.jade"
-      outputPath = "_workshop/liquibase/#{name}.xml"
-      compiled = jade.compileFile(sourcePath, {pretty: true})
-      fs.writeFileSync(outputPath, compiled())     
-      logger.info "Compiled #{sourcePath} to #{outputPath}"
-
-
-    new: (name, recipe)->
-      #logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
-
-      # Set the filename if the --name arguments was provided
-      
-      if name?
-        filename = name
+    switch command
+      when "updateCount"
+        liquibase.updateCount(options.count)
+      when "updateSQL"
+        liquibase.updateSQL()
+      when "updateCountSQL"
+        liquibase.updateCountSQL(options.count)
       else
-        filename = "#{general.dateSid()}-data-model"
+        liquibase.update()
 
-      path = "_src/database_models/#{filename}.jade"
 
-      if recipe?
-        recipe = file.checkExtension(recipe, '.jade')
+  rollback: (database, environment, options)->
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+    database = database || configuration.defaults.database
+    logger.info "Roll back migration"
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.rollback()
+
+
+
+
+  model: (name, recipe)->
+    #logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
+
+    # Set the filename if the --name arguments was provided
+    
+    if name?
+      filename = name
+    else
+      filename = "#{general.dateSid()}-data-model"
+
+    path = "_src/database_models/#{filename}.jade"
+
+    if recipe?
+      recipe = file.checkExtension(recipe, '.jade')
+    else
+      recipe = "default.jade"
+
+    fs.open path, 'r', (err)->
+      if err 
+        # file doesn't exist, ok to create
+        fs.readFile "_workshop/recipes/liquibase/data-models/#{recipe}", { encoding: 'utf8' }, (err, data)->
+          if err
+            logger.error "_workshop/recipes/liquibase/data-models/#{recipe} does not exist"
+            return
+          else
+            logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
+            data = data.replace /#{table_name}/g, "tablename"
+            data = data.replace /#{id}/g, general.dateSid()
+            data = data.replace /#{db_user_name}/g, "db_user_name"
+            data = data.replace /#{db_user_name}/g, "author"
+            console.log data
+            fs.writeFile path, data, (err)->
+              if err
+                logger.error "Error writing #{path}"
+                return
+              else
+                logger.info "Wrote #{path}"
       else
-        recipe = "default.jade"
-
-      fs.open path, 'r', (err)->
-        if err 
-          # file doesn't exist, ok to create
-          fs.readFile "_workshop/recipes/liquibase/data-models/#{recipe}", { encoding: 'utf8' }, (err, data)->
-            if err
-              logger.error "_workshop/recipes/liquibase/data-models/#{recipe} does not exist"
-              return
-            else
-              logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
-              data = data.replace /#{table_name}/g, "tablename"
-              data = data.replace /#{id}/g, general.dateSid()
-              data = data.replace /#{db_user_name}/g, "db_user_name"
-              data = data.replace /#{db_user_name}/g, "author"
-              console.log data
-              fs.writeFile path, data, (err)->
-                if err
-                  logger.error "Error writing #{path}"
-                  return
-                else
-                  logger.info "Wrote #{path}"
-        else
-          logger.error "/databases/#{filename} already exists, please try with a new filename"
+        logger.error "/databases/#{filename} already exists, please try with a new filename"
 
 
 
 
 
+  tag: (tag, database)->
+    logger.todo "Manually tag the database with '#{tag}'"
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+    database = database || configuration.defaults.database      
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.tag(tag)
+
+  validate: (database)->
+    logger.info "Validate a changeset file for the database named: #{name}"
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+    database = database || configuration.defaults.database      
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.validate()
+
+  doc: (database)->
+    logger.todo "Generate liquibase documentation for the database named: #{name}"
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+    database = database || configuration.defaults.database      
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.dbDoc()
+
+  sync: (name)->
+    logger.todo "Mark all migrations as excuted in the database named #{name}"
+
+  reverseEngineer: (name, environment)->
+    if !name?
+      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
+      name = configuration.defaults.database
+
+    logger.info "Reverse engineer the database named: #{name}"
+    @setOptions(name, environment, "#{name}_reverse_engineer")
+
+    # todo - follow up tasks - convert xml file to jade
+    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
+    database = database || configuration.defaults.database      
+    liquibase.resetRunOptions @setOptions(database)
+    liquibase.generateChangeLog()
+
+  reset: (name, environment)->
+    logger.todo "Reset the database to tag 0.0.0"
+
+  rebuild: (name, environment)->
+    logger.todo "Run reset(), followed by migration.run()"
 
 
-
-
-
-
-
-
-
-    tag: (tag)->
-      logger.todo "Manually tag the database with '#{tag}'"
-
-    validate: (name)->
-      logger.info "Validate a changeset file for the database named: #{name}"
-
-      @that.setOptions(name)
-      @that.command.push "validate"      
-      @that.execute()
-
-    doc: (name)->
-      logger.todo "Generate liquibase documentation for the database named: #{name}"
-
-    sync: (name)->
-      logger.todo "Mark all migrations as excuted in the database named #{name}"
-
-    reverseEngineer: (name, environment)->
-      if !name?
-        configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-        name = configuration.defaults.database
-
-      logger.info "Reverse engineer the database named: #{name}"
-      @that.setOptions(name, environment, "#{name}_reverse_engineer")
-      @that.command.push "generateChangeLog"      
-      @that.execute(true)
-      # todo - follow up tasks - convert xml file to jade
-
-    reset: (name, environment)->
-      logger.todo "Reset the database to tag 0.0.0"
-
-    rebuild: (name, environment)->
-      logger.todo "Run reset(), followed by migration.run()"
-  functions: ["init","execute","setOptions"]
-  init: ()->
-    # Give grandchildren access to the root object
-    that = @
-    keys = Object.keys(this)
-    keys.each (key)->
-      # exclude function attributes
-      if !that.functions.any key
-        that[key]["that"] = that
-    delete this.init
-    return this
-}.init()
+}
