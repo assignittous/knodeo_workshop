@@ -67,7 +67,7 @@ subcommand["new"].option("-r, --using-recipe [recipe_name]", "recipe_name");
 
 subcommand["new"].action(function() {
   if (subcommand["new"].migration != null) {
-    liquibase.migration["new"](subcommand["new"].migration, subcommand["new"].forDatabase, subcommand["new"].usingRecipe);
+    liquibase.migration(subcommand["new"].migration, subcommand["new"].forDatabase, subcommand["new"].usingRecipe);
   }
   if (subcommand["new"].script != null) {
     if (subcommand["new"].script === true) {
@@ -79,7 +79,7 @@ subcommand["new"].action(function() {
     }
   }
   if (subcommand["new"].database != null) {
-    return liquibase.database["new"](subcommand["new"].database, subcommand["new"].usingRecipe);
+    return liquibase.model(subcommand["new"].database, subcommand["new"].usingRecipe);
   }
 });
 
@@ -112,7 +112,7 @@ subcommand.run.action(function() {
       count: subcommand.run.count,
       sql: subcommand.run.sql
     };
-    liquibase.migration.run(subcommand.run.forDatabase, subcommand.run.environment, options);
+    liquibase.migrate(subcommand.run.forDatabase, subcommand.run.environment, options);
     return;
   }
   if (subcommand.run.rollback != null) {
@@ -120,7 +120,7 @@ subcommand.run.action(function() {
       count: subcommand.run.count,
       sql: subcommand.run.sql
     };
-    liquibase.migration.rollback(subcommand.run.forDatabase, subcommand.run.environment, options);
+    liquibase.rollback(subcommand.run.forDatabase, subcommand.run.environment, options);
     return;
   }
   if (subcommand.run.script != null) {
@@ -159,7 +159,7 @@ subcommand.validate.description('Create a new thing');
 subcommand.validate.option("-d, --database", "database name");
 
 subcommand.validate.action(function() {
-  return liquibase.database.validate(subcommand.validate.database, subcommand.validate.environment);
+  return liquibase.validate(subcommand.validate.database, subcommand.validate.environment);
 });
 
 subcommand.reverseEngineer = program.command('reverse-engineer');
@@ -176,7 +176,7 @@ subcommand.reverseEngineer.action(function() {
   console.log("====");
   console.log(subcommand.reverseEngineer.database || null);
   console.log("====");
-  return liquibase.database.reverseEngineer(subcommand.reverseEngineer.database || null, subcommand.reverseEngineer.environment || null);
+  return liquibase.reverseEngineer(subcommand.reverseEngineer.database || null, subcommand.reverseEngineer.environment || null);
 });
 
 subcommand.documentDatabase = "";
@@ -198,7 +198,7 @@ subcommand.migrationStatus.description('Create a new thing');
 subcommand.migrationStatus.option("-d, --database", "database name");
 
 subcommand.migrationStatus.action(function() {
-  return liquibase.migration.status(subcommand.migrationStatus.database, subcommand.migrationStatus.environment);
+  return liquibase.status(subcommand.migrationStatus.database, subcommand.migrationStatus.environment);
 });
 
 result = program.parse(process.argv);

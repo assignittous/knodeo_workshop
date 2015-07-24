@@ -77,7 +77,7 @@ subcommand.new.option "-r, --using-recipe [recipe_name]", "recipe_name"
 subcommand.new.action ()->
 
   if subcommand.new.migration?
-    liquibase.migration.new subcommand.new.migration, subcommand.new.forDatabase, subcommand.new.usingRecipe
+    liquibase.migration subcommand.new.migration, subcommand.new.forDatabase, subcommand.new.usingRecipe
 
   if subcommand.new.script?
     if subcommand.new.script == true
@@ -88,7 +88,7 @@ subcommand.new.action ()->
       scriptella.script.new subcommand.new.script, subcommand.new.usingRecipe
 
   if subcommand.new.database?
-    liquibase.database.new subcommand.new.database, subcommand.new.usingRecipe
+    liquibase.model subcommand.new.database, subcommand.new.usingRecipe
 
 # ## `knodeo run --migration [--for-database {database_name}] [--environment {environment}]`
 # ## `knodeo run --script [--environment {environment}]`
@@ -110,14 +110,14 @@ subcommand.run.action ()->
     options =
       count: subcommand.run.count
       sql: subcommand.run.sql
-    liquibase.migration.run subcommand.run.forDatabase, subcommand.run.environment, options
+    liquibase.migrate subcommand.run.forDatabase, subcommand.run.environment, options
     return
 
   if subcommand.run.rollback?
     options =
       count: subcommand.run.count
       sql: subcommand.run.sql
-    liquibase.migration.rollback subcommand.run.forDatabase, subcommand.run.environment, options
+    liquibase.rollback subcommand.run.forDatabase, subcommand.run.environment, options
     return
 
   if subcommand.run.script?
@@ -149,7 +149,7 @@ subcommand.validate.unknownOption = noOp
 subcommand.validate.description 'Create a new thing'
 subcommand.validate.option "-d, --database", "database name"
 subcommand.validate.action ()->
-  liquibase.database.validate subcommand.validate.database, subcommand.validate.environment
+  liquibase.validate subcommand.validate.database, subcommand.validate.environment
 
 subcommand.reverseEngineer = program.command 'reverse-engineer'
 subcommand.reverseEngineer.unknownOption = noOp
@@ -160,7 +160,7 @@ subcommand.reverseEngineer.action ()->
   console.log "===="
   console.log subcommand.reverseEngineer.database || null
   console.log "===="
-  liquibase.database.reverseEngineer (subcommand.reverseEngineer.database || null), (subcommand.reverseEngineer.environment || null)
+  liquibase.reverseEngineer (subcommand.reverseEngineer.database || null), (subcommand.reverseEngineer.environment || null)
 
 subcommand.documentDatabase = ""
 
@@ -177,7 +177,7 @@ subcommand.migrationStatus.unknownOption = noOp
 subcommand.migrationStatus.description 'Create a new thing'
 subcommand.migrationStatus.option "-d, --database", "database name"
 subcommand.migrationStatus.action ()->
-  liquibase.migration.status subcommand.migrationStatus.database, subcommand.migrationStatus.environment
+  liquibase.status subcommand.migrationStatus.database, subcommand.migrationStatus.environment
 
 
 
