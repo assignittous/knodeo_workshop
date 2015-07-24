@@ -3,7 +3,7 @@
 # Initializes a working folder for use with Knodeo Workshop.
 
 logger = require('aitutils').aitutils.logger
-
+file = require('aitutils').aitutils.file
 gulp   = require('gulp')
 
 fs = require('fs-extra')
@@ -21,16 +21,15 @@ exports.Init =
 
     source = confTemplatePath
     target = "config.workshop.cson"    
-    fs.readFile target, (err, paths) ->
-      if err
-        #console.log err
-        #console.log "should copy config"
-        fs.copySync source, target
-      else
-        logger.warn "Config file already exists. Please manually delete it and try again."
+    if !file.exists(target)
+      fs.copySync source, target
+    else
+      logger.warn "Config file already exists. Please manually delete it and try again."
+
+        
 
   setupFolderTree: ()->
-    basepath = "./_workshop"
+
     subfolders = [
       "./_workshop"
       "./_workshop/drivers"
@@ -47,17 +46,8 @@ exports.Init =
       "./_src/etl_groups"  
     ]
     # Check for ./_site folder
-    fs.readdir basepath, (err, paths) ->
-        if err
-          logger.warn "./_workshop not found"
-          fs.ensureDirSync(basepath)
-          logger.info "created ./_workshop"
-        subfolders.each (path)->
-          fs.readdir path, (err)->
-            if err
-              logger.warn "#{path} not found"
-              fs.ensureDirSync(path)
-              logger.info "created #{path}"
+    file.setupFolderTree subfolders
+
 
   setupRecipes: ()->
     # copy the recipes\
