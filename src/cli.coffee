@@ -118,19 +118,22 @@ subcommand.run.unknownOption = noOp
 
 subcommand.run.action ()->
   if subcommand.run.migration?
-    cliParameters =
-      count: subcommand.run.count
-      sql: subcommand.run.sql
-
-    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters)
-    liquibase.migrate subcommand.run.forDatabase, subcommand.run.environment, options
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment)
+    if subcommand.run.count?
+      if subcommand.run.sql?
+        liquibase.migrateCountSql subcommand.run.count, options.runParameters
+      else
+        liquibase.migrateCount subcommand.run.count, options.runParameters
+    else
+      if subcommmand.run.sql?
+        liquibase.migrateSql options.runParameters
+      else
+        liquibase.migrate options.runParameters
     return
 
   if subcommand.run.rollback?
-    cliParameters =
-      count: subcommand.run.count
-      sql: subcommand.run.sql
-    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters)
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment)
+    # todo: tag or count
     liquibase.rollback subcommand.run.forDatabase, subcommand.run.environment, options
     return
 
@@ -163,6 +166,8 @@ subcommand.validate.unknownOption = noOp
 subcommand.validate.description 'Create a new thing'
 subcommand.validate.option "-d, --database", "database name"
 subcommand.validate.action ()->
+  options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters)
+    
   liquibase.validate subcommand.validate.database, subcommand.validate.environment
 
 subcommand.reverseEngineer = program.command 'reverse-engineer'
@@ -174,7 +179,9 @@ subcommand.reverseEngineer.action ()->
   console.log "===="
   console.log subcommand.reverseEngineer.database || null
   console.log "===="
-  liquibase.reverseEngineer (subcommand.reverseEngineer.database || null), (subcommand.reverseEngineer.environment || null)
+  options = configuration.forLiquibase(subcommand.reverseEngineer.database, subcommand.reverseEngineer.environment, cliParameters)
+        
+  liquibase.reverseEngineer options.runParameters
 
 subcommand.documentDatabase = ""
 
@@ -190,8 +197,11 @@ subcommand.migrationStatus = program.command 'migration-status'
 subcommand.migrationStatus.unknownOption = noOp
 subcommand.migrationStatus.description 'Create a new thing'
 subcommand.migrationStatus.option "-d, --database", "database name"
+subcommand.migrationStatus.option "-e, --environment [environment]", "environment"
 subcommand.migrationStatus.action ()->
-  liquibase.status subcommand.migrationStatus.database, subcommand.migrationStatus.environment
+  options = configuration.forLiquibase(subcommand.migrationStatus.database, subcommand.migrationStatus.environment, cliParameters)
+      
+  liquibase.status options
 
 
 

@@ -112,22 +112,26 @@ subcommand.run.option("--sql", "show sql");
 subcommand.run.unknownOption = noOp;
 
 subcommand.run.action(function() {
-  var cliParameters, options;
+  var options;
   if (subcommand.run.migration != null) {
-    cliParameters = {
-      count: subcommand.run.count,
-      sql: subcommand.run.sql
-    };
-    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters);
-    liquibase.migrate(subcommand.run.forDatabase, subcommand.run.environment, options);
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment);
+    if (subcommand.run.count != null) {
+      if (subcommand.run.sql != null) {
+        liquibase.migrateCountSql(subcommand.run.count, options.runParameters);
+      } else {
+        liquibase.migrateCount(subcommand.run.count, options.runParameters);
+      }
+    } else {
+      if (subcommmand.run.sql != null) {
+        liquibase.migrateSql(options.runParameters);
+      } else {
+        liquibase.migrate(options.runParameters);
+      }
+    }
     return;
   }
   if (subcommand.run.rollback != null) {
-    cliParameters = {
-      count: subcommand.run.count,
-      sql: subcommand.run.sql
-    };
-    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters);
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment);
     liquibase.rollback(subcommand.run.forDatabase, subcommand.run.environment, options);
     return;
   }
@@ -167,6 +171,8 @@ subcommand.validate.description('Create a new thing');
 subcommand.validate.option("-d, --database", "database name");
 
 subcommand.validate.action(function() {
+  var options;
+  options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters);
   return liquibase.validate(subcommand.validate.database, subcommand.validate.environment);
 });
 
@@ -181,10 +187,12 @@ subcommand.reverseEngineer.option("-d, --database", "database name");
 subcommand.reverseEngineer.option("-e, --environment [environment]", "environment");
 
 subcommand.reverseEngineer.action(function() {
+  var options;
   console.log("====");
   console.log(subcommand.reverseEngineer.database || null);
   console.log("====");
-  return liquibase.reverseEngineer(subcommand.reverseEngineer.database || null, subcommand.reverseEngineer.environment || null);
+  options = configuration.forLiquibase(subcommand.reverseEngineer.database, subcommand.reverseEngineer.environment, cliParameters);
+  return liquibase.reverseEngineer(options.runParameters);
 });
 
 subcommand.documentDatabase = "";
@@ -205,8 +213,12 @@ subcommand.migrationStatus.description('Create a new thing');
 
 subcommand.migrationStatus.option("-d, --database", "database name");
 
+subcommand.migrationStatus.option("-e, --environment [environment]", "environment");
+
 subcommand.migrationStatus.action(function() {
-  return liquibase.status(subcommand.migrationStatus.database, subcommand.migrationStatus.environment);
+  var options;
+  options = configuration.forLiquibase(subcommand.migrationStatus.database, subcommand.migrationStatus.environment, cliParameters);
+  return liquibase.status(options);
 });
 
 result = program.parse(process.argv);

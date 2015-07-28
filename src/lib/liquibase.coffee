@@ -26,7 +26,10 @@ cwd = process.env.PWD || process.cwd()
 exports.Liquibase = {
 
 
-  setOptions: (database, environment, changelogOverride)->
+
+  setOptions: (liquibaseOptions)->
+    return liquibaseOptions.runParameters
+    ###
     configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
     
     environment = environment || configuration.defaults.environment
@@ -54,7 +57,7 @@ exports.Liquibase = {
       password: conn[environment].password
       changeLogFile: "_workshop/liquibase/#{changelog}.xml"
     }
-
+    ###
 
   # file manipulations for migrations and model
 
@@ -133,7 +136,7 @@ exports.Liquibase = {
     liquibase.resetRunOptions @setOptions(database)
     liquibase.status()
 
-  migrate: (database, environment, options)->
+  migrate: (command, runParameters)->
 
     logger.info "Run migration for database named #{database} in #{environment} environment"
     
@@ -152,7 +155,7 @@ exports.Liquibase = {
         if options.count?
           command = "updateCountSQL"
           
-    liquibase.resetRunOptions options.runParameters
+    liquibase.resetRunOptions runParameters
     
     switch command
       when "updateCount"
@@ -165,49 +168,31 @@ exports.Liquibase = {
         liquibase.update()
 
 
-  rollback: (database, environment, options)->
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-    database = database || configuration.defaults.database
+  rollback: (runParameters)->
     logger.info "Roll back migration"
-    liquibase.resetRunOptions @setOptions(database)
+    liquibase.resetRunOptions runParameters
     liquibase.rollback()
 
-  tag: (tag, database)->
+  tag: (tag, runParameters)->
     logger.todo "Manually tag the database with '#{tag}'"
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-    database = database || configuration.defaults.database      
-    liquibase.resetRunOptions @setOptions(database)
+    liquibase.resetRunOptions runParameters
     liquibase.tag(tag)
 
-  validate: (database)->
-    logger.info "Validate a changeset file for the database named: #{name}"
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-    database = database || configuration.defaults.database      
-    liquibase.resetRunOptions @setOptions(database)
+  validate: (runParameters)->
+    logger.info "Validate a changeset file for the database named: #{name}"  
+    liquibase.resetRunOptions runParameters
     liquibase.validate()
 
-  doc: (database)->
-    logger.todo "Generate liquibase documentation for the database named: #{name}"
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-    database = database || configuration.defaults.database      
-    liquibase.resetRunOptions @setOptions(database)
+  doc: (runParameters)->
+    liquibase.resetRunOptions runParameters
     liquibase.dbDoc()
 
   sync: (name)->
     logger.todo "Mark all migrations as excuted in the database named #{name}"
 
-  reverseEngineer: (name, environment)->
-    if !name?
-      configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-      name = configuration.defaults.database
-
-    logger.info "Reverse engineer the database named: #{name}"
-    @setOptions(name, environment, "#{name}_reverse_engineer")
-
-    # todo - follow up tasks - convert xml file to jade
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")    
-    database = database || configuration.defaults.database      
-    liquibase.resetRunOptions @setOptions(database)
+  reverseEngineer: (runParameters)->
+    runParameters.changeLogFile = runParameters.changeLogFile.replace(".xml", "_reverse_engineer.xml")
+    liquibase.resetRunOptions runParameters
     liquibase.generateChangeLog()
 
   reset: (name, environment)->
