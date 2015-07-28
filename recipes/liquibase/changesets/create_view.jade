@@ -1,6 +1,6 @@
-  changeSet(id="#{sid}",author="#{author}")
-    createView(replaceIfExists="true", viewname="view_#{sid}")
+  changeSet(id="{{sid}}",author="{{author}}")
+    createView(replaceIfExists="true", viewname="view_{{sid}}")
       :cdata
          select id, name from person where id < 10
     rollback
-      dropView(viewname="view_#{sid}")
+      dropView(viewname="view_{{sid}}")

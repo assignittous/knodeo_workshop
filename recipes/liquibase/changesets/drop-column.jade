@@ -1,5 +1,5 @@
-  changeSet(author="#{author}", id="#{sid}")
-    dropColumn(tableName="table_#{sid}", columnName="column_1")
+  changeSet(author="{{author}}", id="{{sid}}")
+    dropColumn(tableName="table_{{sid}}", columnName="column_1")
     rollback
-      addColumn(tableName="table_#{sid}")
+      addColumn(tableName="table_{{sid}}")
         column(name="column_1", type="int", autoIncrement="true")

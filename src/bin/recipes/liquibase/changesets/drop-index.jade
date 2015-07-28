@@ -1,4 +1,4 @@
-  changeSet(author="#{author}", id="#{sid}")
-    dropIndex(indexName="index_#{sid}", tableName="table_#{sid}")
+  changeSet(author="{{author}}", id="{{sid}}")
+    dropIndex(indexName="index_{{sid}}", tableName="table_{{sid}}")
     rollback
       

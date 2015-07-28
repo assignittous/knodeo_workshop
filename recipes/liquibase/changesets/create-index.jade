@@ -1,5 +1,5 @@
-  changeSet(author="#{author}", id="#{sid}")
-    createIndex(indexName="index_#{sid}", tableName="table_#{sid}", unique="true")
+  changeSet(author="{{author}}", id="{{sid}}")
+    createIndex(indexName="index_{{sid}}", tableName="table_{{sid}}", unique="true")
       column(name="column_1", type="varchar(50)")
     rollback
-      dropIndex(indexName="index_#{sid}", tableName="table_#{sid}")
+      dropIndex(indexName="index_{{sid}}", tableName="table_{{sid}}")

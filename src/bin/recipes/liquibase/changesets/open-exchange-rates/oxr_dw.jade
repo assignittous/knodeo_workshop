@@ -1,6 +1,6 @@
-  changeSet(id="#{sid}",author="#{author}")
+  changeSet(id="{{sid}}",author="{{author}}")
 
-  changeSet(author="#{author}", id="#{sid}")
+  changeSet(author="{{author}}", id="{{sid}}")
     createTable(tableName="d_currency", schemaName="dw")
       column(name="id", type="int", autoIncrement="true")
         constraints(primaryKey="true", nullable="false")
@@ -19,5 +19,5 @@
     rollback
       dropTable(tableName="f_exchange_rates", schemaName="dw")
 
-  changeSet(author="#{author}", id="#{sid}")
+  changeSet(author="{{author}}", id="{{sid}}")
     tagDatabase(tag="oxr_dw_0")
