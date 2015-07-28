@@ -16,7 +16,7 @@ scriptella = require("knodeo-scriptella").Scriptella
 
 
 
-fs = require('fs-extra')
+
 CSON = require('cson')
 cwd = process.env.PWD || process.cwd()
 jade = require('jade')
@@ -43,8 +43,8 @@ exports.Scriptella = {
     trailingWhitespace = /( +)(?:\n|\r|\r\n)/m 
     # str.replace(trailingWhitespace, '')
     locals.cwd = process.cwd()
-    sourcePath = "#{@that.paths.source}/#{name}.jade"
-    outputPath = "#{@that.paths.xml}/#{name}.xml"
+    sourcePath = "#{@paths.source}/#{name}.jade"
+    outputPath = "#{@paths.xml}/#{name}.xml"
 
     compiled = jade.compileFile(sourcePath, {pretty: true})
 
@@ -62,20 +62,20 @@ exports.Scriptella = {
     # Set the filename if the --name arguments was provided
 
     filename = name || "#{general.dateSid()}-job"
-    recipePath = @that.paths.recipes
+    recipePath = @paths.recipes
 
-    recipe = file.checkExtension(recipe, '.jade')
+    recipe = file.ensureExtension(recipe, '.jade')
     
 
     source = "#{recipePath}/#{recipe}"
-    target = "#{@that.paths.source}/#{filename}.jade"   
+    target = "#{@paths.source}/#{filename}.jade"   
 
-    fs.readFile target, (err, paths) ->
-      if err
-        fs.copySync source, target
-        logger.info "Created #{target}"
-      else
-        logger.warn "#{target} already exists. Please manually delete it or create a new script with a new name."
+
+    if file.exists(target)
+      logger.warn "#{target} already exists. Please manually delete it or create a new script with a new name."
+    else
+      file.copy source, target
+      logger.info "Created #{target}"
 
 
 
@@ -84,13 +84,13 @@ exports.Scriptella = {
 
     configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
     environment = environment || configuration.defaults.environment
-    @that.properties.generate(environment)
-    @that.script.compile name
+    @properties.generate(environment)
+    @script.compile name
 
     logger.info "Running scriptella..."
 
-    @that.command.push  "#{@that.paths.xml}/#{name}.xml"
-    @that.execute()
+    @command.push  "#{@paths.xml}/#{name}.xml"
+    @execute()
 
 
     
@@ -115,8 +115,6 @@ exports.Scriptella = {
 
     that = @
     groupfile = CSON.parseCSONFile("#{cwd}/_src/etl_groups/#{group}.cson")
-
-
 
     rootKeys = Object.keys(groupfile)
 

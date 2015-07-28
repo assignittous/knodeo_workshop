@@ -12,10 +12,11 @@ file = aitutils.file
 general = aitutils.general
 xml = aitutils.xml
 
+Mustache = require "mustache"
 liquibase = require("knodeo-liquibase").Liquibase
 
 
-fs = require('fs')
+
 
 CSON = require('cson')
 
@@ -38,7 +39,7 @@ exports.Liquibase = {
 
 
     conn = configuration.databases[database]
-    console.log conn
+    
 
     db_driver = configuration.databases[database][environment].driver
     driver = configuration.databases.drivers[db_driver]
@@ -55,7 +56,37 @@ exports.Liquibase = {
     }
 
 
+  # file manipulations for migrations and model
 
+  model: (name, recipe)->
+    if name?
+      filename = name
+    else
+      filename = "#{general.dateSid()}-data-model"
+    outputPath = "_src/database_models/#{filename}.jade"
+    if recipe?
+      recipe = file.ensureExtension(recipe, '.jade')
+    else
+      recipe = "default.jade"
+
+    recipePath = "_workshop/recipes/liquibase/data-models/#{recipe}"
+
+    
+
+    if !file.exists(outputPath)
+      if file.exists(recipePath)
+        data = file.open(recipePath)
+        locals =
+          table_name: "tablename"
+          id: general.dateSid()
+          db_user_name: "db_user_name"
+          author: "author"
+        logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
+        file.save outputPath, Mustache.render(data, locals)
+      else
+        logger.error "_workshop/recipes/liquibase/data-models/#{recipe} does not exist"
+    else
+      logger.error "#{outputPath} already exists, please try with a new filename"
 
   migration: (migration, database, recipe)->
 
@@ -74,66 +105,40 @@ exports.Liquibase = {
     if !recipe?
       recipe = "changeset"
 
-
-
-
-
     modelPath = "_src/database_models/#{database}.jade"
+    recipe = file.ensureExtension(recipe, '.jade')
+    recipePath = "#{recipePath}/#{recipe}"
 
+    if file.exists(modelPath)
+      if file.exists(recipePath)
+        data = "\n" + file.open(recipePath)
+        logger.info "Using recipe: #{recipePath}/#{recipe}"
+        locals = 
+          author: process.env['USER'] || process.env['USERNAME']
+          sid: "sid#{general.dateSid()}"
+        file.append modelPath, Mustache.render(data,locals)
 
-
-    recipe = file.checkExtension(recipe, '.jade')
-
-
-    fs.open modelPath, 'r', (err)->
-      if err 
-        logger.error "#{modelPath} does not exist."
       else
-        
+        logger.error "#{recipePath}/#{recipe} does not exist"
 
-        # file doesn't exist, ok to create
-        fs.readFile "#{recipePath}/#{recipe}", { encoding: 'utf8' }, (err, data)->
-          if err
-            logger.error "#{recipePath}/#{recipe} does not exist"
-            return
-          else
-            logger.info "Using recipe: #{recipePath}/#{recipe}"
-            sid = general.dateSid()
-            data = "\n" + data
-            data = data.replace /#{author}/g, process.env['USER'] || process.env['USERNAME']
-            data = data.replace /#{sid}/g, "sid#{sid}"
-            console.log data
-            fs.appendFile modelPath, data, (err)->
-              if err
-                logger.error "Error writing #{modelPath}"
-                return
-              else
-                logger.info "Wrote #{modelPath}"
+    else
+      logger.error "#{modelPath} does not exist."
 
 
 
 
+  # CLI based commands
 
   status: (database)->
     liquibase.resetRunOptions @setOptions(database)
     liquibase.status()
 
   migrate: (database, environment, options)->
-    configuration = CSON.parseCSONFile("#{cwd}/config.workshop.cson")
-    # todo - compile the jade file to xml before running
 
-    # todo - add error trap to make sure jade file exists
-  
-    environment = environment || configuration.defaults.environment
-    database = database || configuration.defaults.database
     logger.info "Run migration for database named #{database} in #{environment} environment"
     
-
-
     # synchronously compile the jade file before running
-    sourcePath = "_src/database_models/#{database}.jade"
-    outputPath = "_workshop/liquibase/#{database}.xml"
-    file.save outputPath, xml.fromJadeFile(sourcePath)
+    file.save options.outputPath, xml.fromJadeFile(options.sourcePath)
 
     # default
     command = "update"
@@ -147,7 +152,7 @@ exports.Liquibase = {
         if options.count?
           command = "updateCountSQL"
           
-    liquibase.resetRunOptions @setOptions(database)
+    liquibase.resetRunOptions options.runParameters
     
     switch command
       when "updateCount"
@@ -166,53 +171,6 @@ exports.Liquibase = {
     logger.info "Roll back migration"
     liquibase.resetRunOptions @setOptions(database)
     liquibase.rollback()
-
-
-
-
-  model: (name, recipe)->
-    #logger.todo "Create new database named #{name} using `#{recipe}` as a recipe."
-
-    # Set the filename if the --name arguments was provided
-    
-    if name?
-      filename = name
-    else
-      filename = "#{general.dateSid()}-data-model"
-
-    path = "_src/database_models/#{filename}.jade"
-
-    if recipe?
-      recipe = file.checkExtension(recipe, '.jade')
-    else
-      recipe = "default.jade"
-
-    fs.open path, 'r', (err)->
-      if err 
-        # file doesn't exist, ok to create
-        fs.readFile "_workshop/recipes/liquibase/data-models/#{recipe}", { encoding: 'utf8' }, (err, data)->
-          if err
-            logger.error "_workshop/recipes/liquibase/data-models/#{recipe} does not exist"
-            return
-          else
-            logger.info "Using recipe: /recipes/liquibase/data-models/#{recipe}"
-            data = data.replace /#{table_name}/g, "tablename"
-            data = data.replace /#{id}/g, general.dateSid()
-            data = data.replace /#{db_user_name}/g, "db_user_name"
-            data = data.replace /#{db_user_name}/g, "author"
-            console.log data
-            fs.writeFile path, data, (err)->
-              if err
-                logger.error "Error writing #{path}"
-                return
-              else
-                logger.info "Wrote #{path}"
-      else
-        logger.error "/databases/#{filename} already exists, please try with a new filename"
-
-
-
-
 
   tag: (tag, database)->
     logger.todo "Manually tag the database with '#{tag}'"

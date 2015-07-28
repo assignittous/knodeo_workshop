@@ -5,10 +5,21 @@ require 'sugar'
 services = require "./services.json"
 pkg = require('./package.json')
 program = require('commander')
+utils = require('aitutils').aitutils
+logger = utils.logger
+
+# local libs
 liquibase = require("./lib/liquibase").Liquibase
 scriptella = require("./lib/scriptella").Scriptella
 init = require("./lib/init").Init
-logger = require('aitutils').aitutils.logger
+configuration = require("./lib/configuration").Configuration
+
+cwd = process.env.PWD || process.cwd()
+
+
+
+
+
 
 noOp = ()-> 
   console.log "Nothing ran, couldn't understand your command"
@@ -85,7 +96,7 @@ subcommand.new.action ()->
       logger.info "The proper syntax is: knodeo new --script [script_name]"
       return
     else
-      scriptella.script.new subcommand.new.script, subcommand.new.usingRecipe
+      scriptella.new subcommand.new.script, subcommand.new.usingRecipe
 
   if subcommand.new.database?
     liquibase.model subcommand.new.database, subcommand.new.usingRecipe
@@ -107,16 +118,19 @@ subcommand.run.unknownOption = noOp
 
 subcommand.run.action ()->
   if subcommand.run.migration?
-    options =
+    cliParameters =
       count: subcommand.run.count
       sql: subcommand.run.sql
+
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters)
     liquibase.migrate subcommand.run.forDatabase, subcommand.run.environment, options
     return
 
   if subcommand.run.rollback?
-    options =
+    cliParameters =
       count: subcommand.run.count
       sql: subcommand.run.sql
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters)
     liquibase.rollback subcommand.run.forDatabase, subcommand.run.environment, options
     return
 

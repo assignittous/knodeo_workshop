@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var config, help, init, liquibase, logger, noOp, pkg, program, result, scriptella, services, subcommand;
+var config, configuration, cwd, help, init, liquibase, logger, noOp, pkg, program, result, scriptella, services, subcommand, utils;
 
 require('sugar');
 
@@ -9,13 +9,19 @@ pkg = require('./package.json');
 
 program = require('commander');
 
+utils = require('aitutils').aitutils;
+
+logger = utils.logger;
+
 liquibase = require("./lib/liquibase").Liquibase;
 
 scriptella = require("./lib/scriptella").Scriptella;
 
 init = require("./lib/init").Init;
 
-logger = require('aitutils').aitutils.logger;
+configuration = require("./lib/configuration").Configuration;
+
+cwd = process.env.PWD || process.cwd();
 
 noOp = function() {
   return console.log("Nothing ran, couldn't understand your command");
@@ -75,7 +81,7 @@ subcommand["new"].action(function() {
       logger.info("The proper syntax is: knodeo new --script [script_name]");
       return;
     } else {
-      scriptella.script["new"](subcommand["new"].script, subcommand["new"].usingRecipe);
+      scriptella["new"](subcommand["new"].script, subcommand["new"].usingRecipe);
     }
   }
   if (subcommand["new"].database != null) {
@@ -106,20 +112,22 @@ subcommand.run.option("--sql", "show sql");
 subcommand.run.unknownOption = noOp;
 
 subcommand.run.action(function() {
-  var options;
+  var cliParameters, options;
   if (subcommand.run.migration != null) {
-    options = {
+    cliParameters = {
       count: subcommand.run.count,
       sql: subcommand.run.sql
     };
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters);
     liquibase.migrate(subcommand.run.forDatabase, subcommand.run.environment, options);
     return;
   }
   if (subcommand.run.rollback != null) {
-    options = {
+    cliParameters = {
       count: subcommand.run.count,
       sql: subcommand.run.sql
     };
+    options = configuration.forLiquibase(subcommand.run.forDatabase, subcommand.run.environment, cliParameters);
     liquibase.rollback(subcommand.run.forDatabase, subcommand.run.environment, options);
     return;
   }
